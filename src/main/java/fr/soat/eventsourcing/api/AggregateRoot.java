@@ -22,7 +22,7 @@ public abstract class AggregateRoot<AGGREGATE_ID> {
         return new ArrayList<>(changes);
     }
 
-    protected void registerChange(Event event) {
+    protected void recordChange(Event event) {
         changes.add(event);
     }
 

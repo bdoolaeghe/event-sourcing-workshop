@@ -30,21 +30,25 @@ public class Account extends AggregateRoot<AccountId> {
         this.number = accountRegistered.getNumber();
         this.balance = 0;
         this.status = OPEN;
+        recordChange(accountRegistered);
     }
 
     @EvolutionFunction
     void apply(AccountDeposited accountDeposited) {
         this.balance += accountDeposited.getAmount();
+        recordChange(accountDeposited);
     }
 
     @EvolutionFunction
     void apply(AccountWithdrawn accountWithdrawn) {
         this.balance -= accountWithdrawn.getAmount();
+        recordChange(accountWithdrawn);
     }
 
     @EvolutionFunction
     void apply(AccountClosed accountClosed) {
         this.status = CLOSED;
+        recordChange(accountClosed);
     }
 
     /* commands on aggregate */
@@ -60,7 +64,6 @@ public class Account extends AggregateRoot<AccountId> {
             throw new UnsupportedOperationException("Can not register a " + status + " account");
         }
         AccountRegistered event = new AccountRegistered(getId(), owner, UUID.randomUUID().toString());
-        registerChange(event);
         apply(event);
         return this;
     }
@@ -71,7 +74,6 @@ public class Account extends AggregateRoot<AccountId> {
             throw new UnsupportedOperationException("Can not deposit on a " + status + " account");
         }
         AccountDeposited event = new AccountDeposited(getId(), amount);
-        registerChange(event);
         apply(event);
         return this;
     }
@@ -87,7 +89,6 @@ public class Account extends AggregateRoot<AccountId> {
         }
 
         AccountWithdrawn event = new AccountWithdrawn(getId(), amount);
-        registerChange(event);
         apply(event);
         return this;
     }
@@ -99,7 +100,6 @@ public class Account extends AggregateRoot<AccountId> {
         }
 
         AccountClosed event = new AccountClosed(getId());
-        registerChange(event);
         apply(event);
         return this;
     }

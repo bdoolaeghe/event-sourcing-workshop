@@ -1,38 +1,25 @@
 package fr.soat.banking.domain;
 
 
-import fr.soat.eventsourcing.api.Aggregate;
+import fr.soat.eventsourcing.api.AggregateRoot;
 import fr.soat.eventsourcing.api.DecisionFunction;
-import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EvolutionFunction;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-@Getter
-@RequiredArgsConstructor
-public class Account implements Aggregate<AccountId> {
+import static fr.soat.banking.domain.AccountStatus.*;
 
-    private final AccountId accountId;
+@Getter
+public class Account extends AggregateRoot<AccountId> {
+
     private String owner;
     private String number;
-    private boolean closed = false;
     private Integer balance = 0;
-    private List<Event> changes = new ArrayList<>();
-    private int version = 0;
+    private AccountStatus status = NEW;
 
-    public static Account hydrate(AccountId accountId, List<AccountEvent> events) {
-        Account account = new Account(accountId);
-        events.forEach(event -> event.applyOn(account));
-        return account;
-    }
-
-    @Override
-    public AccountId getId() {
-        return accountId;
+    public Account(AccountId accountId) {
+        super(accountId);
     }
 
     /* aggregate evolutions  */
@@ -42,26 +29,22 @@ public class Account implements Aggregate<AccountId> {
         this.owner = accountRegistered.getOwner();
         this.number = accountRegistered.getNumber();
         this.balance = 0;
-        this.closed = false;
-        this.version++;
+        this.status = OPEN;
     }
 
     @EvolutionFunction
     void apply(AccountDeposited accountDeposited) {
         this.balance += accountDeposited.getAmount();
-        this.version++;
     }
 
     @EvolutionFunction
     void apply(AccountWithdrawn accountWithdrawn) {
         this.balance -= accountWithdrawn.getAmount();
-        this.version++;
     }
 
     @EvolutionFunction
     void apply(AccountClosed accountClosed) {
-        this.closed = true;
-        this.version++;
+        this.status = CLOSED;
     }
 
     /* commands on aggregate */
@@ -73,41 +56,51 @@ public class Account implements Aggregate<AccountId> {
 
     @DecisionFunction
     public Account register(String owner) {
+        if (status != NEW) {
+            throw new UnsupportedOperationException("Can not register a " + status + " account");
+        }
         AccountRegistered event = new AccountRegistered(getId(), owner, UUID.randomUUID().toString());
-        changes.add(event);
-        event.applyOn(this);
+        registerChange(event);
+        apply(event);
         return this;
     }
 
     @DecisionFunction
     public Account deposit(Integer amount) {
+        if (status != OPEN) {
+            throw new UnsupportedOperationException("Can not deposit on a " + status + " account");
+        }
         AccountDeposited event = new AccountDeposited(getId(), amount);
-        changes.add(event);
-        event.applyOn(this);
+        registerChange(event);
+        apply(event);
         return this;
     }
 
     @DecisionFunction
     public Account withdraw(Integer amount) {
+        if (status != OPEN) {
+            throw new UnsupportedOperationException("Can not withdraw on a " + status + " account");
+        }
+
         if (amount > balance) {
             throw new InsufficientFundsException("Withdrawal of " + amount + " can not be applied with balance of " + balance);
         }
 
         AccountWithdrawn event = new AccountWithdrawn(getId(), amount);
-        changes.add(event);
-        event.applyOn(this);
+        registerChange(event);
+        apply(event);
         return this;
     }
 
     @DecisionFunction
     public Account close() {
-        if (isClosed()) {
-            throw new AccountClosedException("Failed to close account " + getId() + " (already closed)");
+        if (status != OPEN) {
+            throw new UnsupportedOperationException("Can not close a " + status + " account");
         }
 
         AccountClosed event = new AccountClosed(getId());
-        changes.add(event);
-        event.applyOn(this);
+        registerChange(event);
+        apply(event);
         return this;
     }
 

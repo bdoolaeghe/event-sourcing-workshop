@@ -15,14 +15,20 @@ public class AccountRepository {
         this.eventStore = eventStore;
     }
 
-    void save(Account account) {
+    public void save(Account account) {
         AccountId aggregateId = account.getId();
         eventStore.store(aggregateId, account.getChanges());
     }
 
-    Account load(AccountId accountId) {
+    public Account load(AccountId accountId) {
         List<AccountEvent> events = asAccountEvents(eventStore.loadEvents(accountId));
-        return Account.hydrate(accountId, events);
+        return hydrate(accountId, events);
+    }
+
+    private static Account hydrate(AccountId accountId, List<AccountEvent> events) {
+        Account account = new Account(accountId);
+        events.forEach(event -> event.applyOn(account));
+        return account;
     }
 
     private List<AccountEvent> asAccountEvents(List<Event> events) {

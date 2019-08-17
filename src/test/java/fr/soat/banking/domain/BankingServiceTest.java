@@ -13,7 +13,7 @@ public class BankingServiceTest {
 
     @Test
     public void should_register_a_new_account_then_use_then_close() {
-        AccountId accountId = bankingService.createAccount("toto");
+        AccountId accountId = bankingService.openAccount("toto");
 
         // When
         bankingService.deposit(accountId, 100);

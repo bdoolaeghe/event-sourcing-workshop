@@ -29,7 +29,7 @@ public class AccountTest {
         Assertions.assertThat(account.getChanges())
                 .extracting(event -> tuple(event.getClass()))
                 .containsExactly(
-                        tuple(AccountRegistered.class),
+                        tuple(AccountOpened.class),
                         tuple(AccountDeposited.class),
                         tuple(AccountDeposited.class),
                         tuple(AccountWithdrawn.class),

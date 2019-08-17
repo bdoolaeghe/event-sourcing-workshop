@@ -25,12 +25,12 @@ public class Account extends AggregateRoot<AccountId> {
     /* aggregate evolutions  */
 
     @EvolutionFunction
-    void apply(AccountRegistered accountRegistered) {
-        this.owner = accountRegistered.getOwner();
-        this.number = accountRegistered.getNumber();
+    void apply(AccountOpened accountOpened) {
+        this.owner = accountOpened.getOwner();
+        this.number = accountOpened.getNumber();
         this.balance = 0;
         this.status = OPEN;
-        recordChange(accountRegistered);
+        recordChange(accountOpened);
     }
 
     @EvolutionFunction
@@ -51,7 +51,7 @@ public class Account extends AggregateRoot<AccountId> {
         recordChange(accountClosed);
     }
 
-    /* commands on aggregate */
+    /* decisions invoked by commands */
 
     @DecisionFunction
     public static Account create() {
@@ -63,7 +63,7 @@ public class Account extends AggregateRoot<AccountId> {
         if (status != NEW) {
             throw new UnsupportedOperationException("Can not register a " + status + " account");
         }
-        AccountRegistered event = new AccountRegistered(getId(), owner, UUID.randomUUID().toString());
+        AccountOpened event = new AccountOpened(getId(), owner, UUID.randomUUID().toString());
         apply(event);
         return this;
     }

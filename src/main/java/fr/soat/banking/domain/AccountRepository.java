@@ -4,7 +4,8 @@ import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EventStore;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 public class AccountRepository {
@@ -32,6 +33,6 @@ public class AccountRepository {
     }
 
     private List<AccountEvent> asAccountEvents(List<Event> events) {
-        return events.stream().map(event -> (AccountEvent) event).collect(Collectors.toList());
+        return events.stream().map(event -> (AccountEvent) event).collect(toList());
     }
 }

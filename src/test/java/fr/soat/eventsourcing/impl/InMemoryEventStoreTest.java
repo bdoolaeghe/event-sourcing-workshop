@@ -32,7 +32,7 @@ public class InMemoryEventStoreTest {
         // Given
         accountId = AccountId.next();
         List<Event> events = asList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50),
                 new AccountClosed(accountId)
@@ -65,7 +65,7 @@ public class InMemoryEventStoreTest {
         // Given
         accountId = AccountId.next();
         List<Event> events = asList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50),
                 new AccountClosed(accountId)
@@ -74,7 +74,7 @@ public class InMemoryEventStoreTest {
 
         // When
         List<Event> sameEvents = asList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50),
                 new AccountClosed(accountId)
@@ -93,7 +93,7 @@ public class InMemoryEventStoreTest {
         // Given
         accountId = AccountId.next();
         List<Event> events = newArrayList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 200)
         );
         eventStore.store(accountId, events);
@@ -113,7 +113,7 @@ public class InMemoryEventStoreTest {
         // Given
         accountId = AccountId.next();
         List<Event> events = newArrayList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 200)
         );
         eventStore.store(accountId, events);
@@ -134,7 +134,7 @@ public class InMemoryEventStoreTest {
         // Given
         accountId = AccountId.next();
         List<Event> events = asList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50)
         );
@@ -156,7 +156,7 @@ public class InMemoryEventStoreTest {
         // Given
         accountId = AccountId.next();
         List<Event> events = asList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountDeposited(accountId, 200),
                 new AccountWithdrawn(accountId, 50)
@@ -165,7 +165,7 @@ public class InMemoryEventStoreTest {
 
         // When
         List<Event> anotherEventsLateVersion = asList(
-                new AccountRegistered(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", "1234-5678-9101"),
                 new AccountDeposited(accountId, 500)
         );
 

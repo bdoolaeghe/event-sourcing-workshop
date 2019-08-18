@@ -17,13 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Lists.newArrayList;
 
-public class InMemoryEventStoreTest {
+public class FSEventStoreTest {
 
-    EventStore eventStore = new InMemoryEventStore();
+    EventStore eventStore = new FSEventStore();
     private AccountId accountId = AccountId.from(eventStore.nextId());
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         eventStore.clear();
     }
 
@@ -172,4 +172,6 @@ public class InMemoryEventStoreTest {
                 .isInstanceOf(EventConcurrentUpdateException.class)
                 .hasMessageContaining("Failed to save events, version mismatch (there was a concurrent update)");
     }
+
+
 }

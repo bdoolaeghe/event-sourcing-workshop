@@ -5,14 +5,13 @@ import org.junit.Test;
 
 import static fr.soat.banking.domain.AccountStatus.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertTrue;
 
 public class AccountTest {
 
     @Test
     public void should_succeed_a_classic_FSM_scenario() {
         // Given
-        Account account = Account.create();
+        Account account = Account.create(AccountId.from("1"));
 
         // When
         account.register("toto")
@@ -41,7 +40,7 @@ public class AccountTest {
     @Test
     public void should_fail_to_get_negative_balance() {
         // Given
-        Account account = Account.create();
+        Account account = Account.create(AccountId.from("1"));
 
         // When
         assertThatThrownBy(() -> account.register("toto")
@@ -56,7 +55,7 @@ public class AccountTest {
     @Test
     public void should_fail_with_invalid_decisions_on_new_account() {
         // Given
-        Account account = Account.create();
+        Account account = Account.create(AccountId.from("1"));
         assertThat(account.getStatus()).isEqualTo(NEW);
 
         // When
@@ -71,7 +70,7 @@ public class AccountTest {
     @Test
     public void should_fail_with_invalid_decisions_on_open_account() {
         // Given
-        Account account = Account.create();
+        Account account = Account.create(AccountId.from("1"));
         account.register("alice");
         assertThat(account.getStatus()).isEqualTo(OPEN);
 
@@ -83,7 +82,7 @@ public class AccountTest {
     @Test
     public void should_fail_with_invalid_decisions_on_closed_account() {
         // Given
-        Account account = Account.create();
+        Account account = Account.create(AccountId.from("1"));
         account.register("alice")
                 .close();
         assertThat(account.getStatus()).isEqualTo(CLOSED);

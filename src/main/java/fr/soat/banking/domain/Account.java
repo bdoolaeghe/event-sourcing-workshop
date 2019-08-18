@@ -54,8 +54,8 @@ public class Account extends AggregateRoot<AccountId> {
     /* decisions invoked by commands */
 
     @DecisionFunction
-    public static Account create() {
-        return new Account(AccountId.next());
+    public static Account create(AccountId id) {
+        return new Account(id);
     }
 
     @DecisionFunction

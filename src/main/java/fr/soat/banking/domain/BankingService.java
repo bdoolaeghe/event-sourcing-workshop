@@ -13,7 +13,7 @@ public class BankingService {
     @Command
     public AccountId openAccount(String owner) {
         final Account account = Account
-                        .create()
+                        .create(repository.nextId())
                         .register(owner);
 
         repository.save(account);

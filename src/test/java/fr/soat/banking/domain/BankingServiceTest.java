@@ -1,14 +1,15 @@
 package fr.soat.banking.domain;
 
-import fr.soat.eventsourcing.impl.InMemoryEventStore;
-import org.assertj.core.api.Assertions;
+import fr.soat.eventsourcing.impl.FSEventStore;
 import org.junit.Test;
 
 import static fr.soat.banking.domain.AccountStatus.CLOSED;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BankingServiceTest {
 
-    AccountRepository repository = new AccountRepository(new InMemoryEventStore());
+    FSEventStore eventStore = new FSEventStore("./target/test-classes/store1/");
+    AccountRepository repository = new AccountRepository(eventStore);
     BankingService bankingService = new BankingService(repository);
 
     @Test
@@ -23,7 +24,13 @@ public class BankingServiceTest {
 
         // Then
         Account reloadedAccount = repository.load(accountId);
-        Assertions.assertThat(reloadedAccount.getStatus()).isEqualTo(CLOSED);
-        Assertions.assertThat(reloadedAccount.getBalance()).isEqualTo(0);
+        assertThat(reloadedAccount.getStatus()).isEqualTo(CLOSED);
+        assertThat(reloadedAccount.getBalance()).isEqualTo(0);
+    }
+
+    @Test
+    public void should_reload_an_existing_account() {
+        Account account = bankingService.loadAccount(AccountId.from("1001"));
+        assertThat(account.getBalance()).isEqualTo(250);
     }
 }

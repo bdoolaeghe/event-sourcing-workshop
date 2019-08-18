@@ -8,6 +8,7 @@ import fr.soat.eventsourcing.api.EventStore;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.collect.Lists.reverse;
 
@@ -15,6 +16,8 @@ public class InMemoryEventStore implements EventStore {
 
     private final ArrayListMultimap<String, Event> store = ArrayListMultimap.create();
     private final Object lock = new Object();
+    private AtomicInteger idGenerator = new AtomicInteger(1);
+
 
     @Override
     public List<Event> loadEvents(AggregateId aggregateId) {
@@ -47,5 +50,10 @@ public class InMemoryEventStore implements EventStore {
     @Override
     public void clear() {
         store.clear();
+    }
+
+    @Override
+    public String nextId() {
+        return String.valueOf(idGenerator.getAndIncrement());
     }
 }

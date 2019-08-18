@@ -2,15 +2,19 @@ package fr.soat.banking.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import static lombok.AccessLevel.PRIVATE;
+
+@NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode
 @ToString(callSuper = true)
 @Getter
 public class AccountOpened extends AccountEvent {
 
-    private final String owner;
-    private final String number;
+    private String owner;
+    private String number;
 
     public AccountOpened(AccountId id, String owner, String number) {
         super(id);

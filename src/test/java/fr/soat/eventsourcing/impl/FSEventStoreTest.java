@@ -32,7 +32,7 @@ public class FSEventStoreTest {
         // Given
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50),
                 new AccountClosed(accountId)
@@ -65,7 +65,7 @@ public class FSEventStoreTest {
         // Given
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50),
                 new AccountClosed(accountId)
@@ -74,7 +74,7 @@ public class FSEventStoreTest {
 
         // When
         List<Event> sameEvents = asList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50),
                 new AccountClosed(accountId)
@@ -92,7 +92,7 @@ public class FSEventStoreTest {
         // Given
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = newArrayList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 200)
         );
         eventStore.store(accountId, events);
@@ -111,7 +111,7 @@ public class FSEventStoreTest {
         // Given
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = newArrayList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 200)
         );
         eventStore.store(accountId, events);
@@ -132,7 +132,7 @@ public class FSEventStoreTest {
         // Given
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountWithdrawn(accountId, 50)
         );
@@ -154,7 +154,7 @@ public class FSEventStoreTest {
         // Given
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 100),
                 new AccountDeposited(accountId, 200),
                 new AccountWithdrawn(accountId, 50)
@@ -163,7 +163,7 @@ public class FSEventStoreTest {
 
         // When
         List<Event> anotherEventsLateVersion = asList(
-                new AccountOpened(accountId, "toto", "1234-5678-9101"),
+                new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
                 new AccountDeposited(accountId, 500)
         );
 

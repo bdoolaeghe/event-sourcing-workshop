@@ -14,7 +14,7 @@ public class AccountTest {
         Account account = Account.create(AccountId.from("1"));
 
         // When
-        account.register("toto")
+        account.open("toto", Currency.USD)
                 .deposit(100)
                 .deposit(100)
                 .withdraw(200)
@@ -25,6 +25,7 @@ public class AccountTest {
         Assertions.assertThat(account.getBalance()).isEqualTo(0);
         Assertions.assertThat(account.getVersion()).isEqualTo(5);
         Assertions.assertThat(account.getStatus()).isEqualTo(CLOSED);
+        Assertions.assertThat(account.getCurrency()).isEqualTo(Currency.USD);
         Assertions.assertThat(account.getChanges())
                 .extracting(event -> tuple(event.getClass()))
                 .containsExactly(
@@ -43,7 +44,7 @@ public class AccountTest {
         Account account = Account.create(AccountId.from("1"));
 
         // When
-        assertThatThrownBy(() -> account.register("toto")
+        assertThatThrownBy(() -> account.open("toto", Currency.EUR)
                 .deposit(100)
                 .withdraw(200))
                 .isInstanceOf(InsufficientFundsException.class)
@@ -71,11 +72,11 @@ public class AccountTest {
     public void should_fail_with_invalid_decisions_on_open_account() {
         // Given
         Account account = Account.create(AccountId.from("1"));
-        account.register("alice");
+        account.open("alice", Currency.EUR);
         assertThat(account.getStatus()).isEqualTo(OPEN);
 
         // When
-        assertThatThrownBy(() -> account.register("bob"))
+        assertThatThrownBy(() -> account.open("bob", Currency.EUR))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
@@ -83,12 +84,12 @@ public class AccountTest {
     public void should_fail_with_invalid_decisions_on_closed_account() {
         // Given
         Account account = Account.create(AccountId.from("1"));
-        account.register("alice")
+        account.open("alice", Currency.EUR)
                 .close();
         assertThat(account.getStatus()).isEqualTo(CLOSED);
 
         // When
-        assertThatThrownBy(() -> account.register("bob"))
+        assertThatThrownBy(() -> account.open("bob", Currency.EUR))
                 .isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> account.withdraw(100))
                 .isInstanceOf(UnsupportedOperationException.class);

@@ -14,7 +14,7 @@ public class BankingServiceTest {
 
     @Test
     public void should_register_a_new_account_then_use_then_close() {
-        AccountId accountId = bankingService.openAccount("toto");
+        AccountId accountId = bankingService.openAccount("toto", Currency.USD);
 
         // When
         bankingService.deposit(accountId, 100);
@@ -26,11 +26,14 @@ public class BankingServiceTest {
         Account reloadedAccount = repository.load(accountId);
         assertThat(reloadedAccount.getStatus()).isEqualTo(CLOSED);
         assertThat(reloadedAccount.getBalance()).isEqualTo(0);
+        assertThat(reloadedAccount.getCurrency()).isEqualTo(Currency.USD);
     }
 
     @Test
-    public void should_reload_an_existing_account() {
+    public void should_reload_an_existing_legacy_account() {
+        // A legacy account opened before we introduced the currency on account
         Account account = bankingService.loadAccount(AccountId.from("1001"));
         assertThat(account.getBalance()).isEqualTo(250);
+        assertThat(account.getCurrency()).isEqualTo(Currency.EUR); // default value for legacy accounts is EUR
     }
 }

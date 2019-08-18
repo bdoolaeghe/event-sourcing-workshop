@@ -11,10 +11,10 @@ public class BankingService {
     }
 
     @Command
-    public AccountId openAccount(String owner) {
+    public AccountId openAccount(String owner, Currency currency) {
         final Account account = Account
                         .create(repository.nextId())
-                        .register(owner);
+                        .open(owner, currency);
 
         repository.save(account);
         return account.getId();

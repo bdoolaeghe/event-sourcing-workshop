@@ -1,11 +1,13 @@
 package fr.soat.banking.domain;
 
 
+import com.google.common.base.Preconditions;
 import fr.soat.eventsourcing.api.AggregateRoot;
 import fr.soat.eventsourcing.api.DecisionFunction;
 import fr.soat.eventsourcing.api.EvolutionFunction;
 import lombok.Getter;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static fr.soat.banking.domain.AccountStatus.*;
@@ -15,6 +17,7 @@ public class Account extends AggregateRoot<AccountId> {
 
     private String owner;
     private String number;
+    private Currency currency;
     private Integer balance = 0;
     private AccountStatus status = NEW;
 
@@ -30,6 +33,8 @@ public class Account extends AggregateRoot<AccountId> {
         this.number = accountOpened.getNumber();
         this.balance = 0;
         this.status = OPEN;
+        // for retro compatibility, currency is EUR when unspecified at account opening
+        this.currency = Optional.ofNullable(accountOpened.getCurrency()).orElse(Currency.EUR);
         recordChange(accountOpened);
     }
 
@@ -59,11 +64,12 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account register(String owner) {
+    public Account open(String owner, Currency currency) {
+        Preconditions.checkNotNull(currency, "currency is mandatory");
         if (status != NEW) {
             throw new UnsupportedOperationException("Can not register a " + status + " account");
         }
-        AccountOpened event = new AccountOpened(getId(), owner, UUID.randomUUID().toString());
+        AccountOpened event = new AccountOpened(getId(), owner, currency, UUID.randomUUID().toString());
         apply(event);
         return this;
     }

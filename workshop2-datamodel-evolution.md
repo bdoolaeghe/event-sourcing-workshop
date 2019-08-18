@@ -7,8 +7,10 @@ We want to make the following business enhancements:
 * define a currency for a given account, that should be set when the account is opened by its owner.
 * allow withdrawal in another currency, with an exchange rate (using the `CurrencyConverterService`)
 
-Implement...
-After that, the test `MoneyTransferWithCurrenciesTest` should pass green !
+Implement a `currency` property on `Account`. How are we going to handle the eventStore already created accounts ? (these legacy accounts have no currency, in this case, the default currency is `EUR`) 
+If we were in a *CRUD* persistence model, we would have "migrated" the data in tables to set the default currency. But how can we do with an eventStore ?
+
+After that, the test `BankServiceWithCurrencyTest` should pass green !
 
 ## Implement the fees on withdrawal with conversion
 Now that we can do some money withdrawal in another currency, 

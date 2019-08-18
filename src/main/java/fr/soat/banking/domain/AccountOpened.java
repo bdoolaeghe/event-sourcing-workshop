@@ -15,11 +15,13 @@ public class AccountOpened extends AccountEvent {
 
     private String owner;
     private String number;
+    private Currency currency;
 
-    public AccountOpened(AccountId id, String owner, String number) {
+    public AccountOpened(AccountId id, String owner, Currency currency, String number) {
         super(id);
         this.owner = owner;
         this.number = number;
+        this.currency = currency;
     }
 
     @Override

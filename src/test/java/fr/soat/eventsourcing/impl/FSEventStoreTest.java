@@ -33,8 +33,8 @@ public class FSEventStoreTest {
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 100),
-                new AccountWithdrawn(accountId, 50),
+                new AccountDeposited(accountId, Amount.of(100)),
+                new AccountWithdrawn(accountId, Amount.of(50)),
                 new AccountClosed(accountId)
         );
 
@@ -66,8 +66,8 @@ public class FSEventStoreTest {
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 100),
-                new AccountWithdrawn(accountId, 50),
+                new AccountDeposited(accountId, Amount.of(100)),
+                new AccountWithdrawn(accountId, Amount.of(50)),
                 new AccountClosed(accountId)
         );
         eventStore.store(accountId, events);
@@ -75,8 +75,8 @@ public class FSEventStoreTest {
         // When
         List<Event> sameEvents = asList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 100),
-                new AccountWithdrawn(accountId, 50),
+                new AccountDeposited(accountId, Amount.of(100)),
+                new AccountWithdrawn(accountId, Amount.of(50)),
                 new AccountClosed(accountId)
         );
         eventStore.store(accountId, sameEvents);
@@ -93,7 +93,7 @@ public class FSEventStoreTest {
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = newArrayList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 200)
+                new AccountDeposited(accountId, Amount.of(200))
         );
         eventStore.store(accountId, events);
 
@@ -112,14 +112,14 @@ public class FSEventStoreTest {
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = newArrayList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 200)
+                new AccountDeposited(accountId, Amount.of(200))
         );
         eventStore.store(accountId, events);
 
         // When
-        events.add(new AccountDeposited(accountId, 10));
-        events.add(new AccountDeposited(accountId, 20));
-        events.add(new AccountDeposited(accountId, 30));
+        events.add(new AccountDeposited(accountId, Amount.of(10)));
+        events.add(new AccountDeposited(accountId, Amount.of(20)));
+        events.add(new AccountDeposited(accountId, Amount.of(30)));
         eventStore.store(accountId, events);
 
         // Then
@@ -133,8 +133,8 @@ public class FSEventStoreTest {
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 100),
-                new AccountWithdrawn(accountId, 50)
+                new AccountDeposited(accountId, Amount.of(100)),
+                new AccountWithdrawn(accountId, Amount.of(50))
         );
         eventStore.store(accountId, events);
 
@@ -143,7 +143,7 @@ public class FSEventStoreTest {
         eventStore.store(accountId, newEvents);
 
         // Then
-        List<Event> anotherNewEvents = newArrayList(concat(events, singletonList(new AccountWithdrawn(accountId, 10))));
+        List<Event> anotherNewEvents = newArrayList(concat(events, singletonList(new AccountWithdrawn(accountId, Amount.of(10)))));
         assertThatThrownBy(() -> eventStore.store(accountId, anotherNewEvents))
                 .isInstanceOf(EventConcurrentUpdateException.class)
                 .hasMessageContaining("Failed to save events, version mismatch (there was a concurrent update)");
@@ -155,16 +155,16 @@ public class FSEventStoreTest {
         accountId = AccountId.from(eventStore.nextId());
         List<Event> events = asList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 100),
-                new AccountDeposited(accountId, 200),
-                new AccountWithdrawn(accountId, 50)
+                new AccountDeposited(accountId, Amount.of(100)),
+                new AccountDeposited(accountId, Amount.of(200)),
+                new AccountWithdrawn(accountId, Amount.of(50))
         );
         eventStore.store(accountId, events);
 
         // When
         List<Event> anotherEventsLateVersion = asList(
                 new AccountOpened(accountId, "toto", Currency.EUR, "1234-5678-9101"),
-                new AccountDeposited(accountId, 500)
+                new AccountDeposited(accountId, Amount.of(500))
         );
 
         // Then

@@ -25,14 +25,14 @@ public class BankingService {
     }
 
     @Command
-    public void deposit(AccountId id, int amount) {
+    public void deposit(AccountId id, Amount amount) {
         final Account account = repository.load(id);
         account.deposit(amount);
         repository.save(account);
     }
 
     @Command
-    public void withdraw(AccountId id, int amount) {
+    public void withdraw(AccountId id, Amount amount) {
         final Account account = repository.load(id);
         account.withdraw(amount);
         repository.save(account);

@@ -13,15 +13,11 @@ import static lombok.AccessLevel.PRIVATE;
 public class AccountDeposited extends AccountEvent {
 
     @Getter
-    private Integer amount;
+    private Amount depositedAmount;
 
-    public AccountDeposited(AccountId accountId, Integer amount) {
+    public AccountDeposited(AccountId accountId, Amount depositedAmount) {
         super(accountId);
-        this.amount = amount;
-    }
-
-    public Integer getAmount() {
-        return amount;
+        this.depositedAmount = depositedAmount;
     }
 
     @Override

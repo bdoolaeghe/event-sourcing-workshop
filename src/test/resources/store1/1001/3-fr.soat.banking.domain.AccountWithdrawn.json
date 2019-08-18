@@ -2,5 +2,7 @@
   "accountId" : {
     "value" : "1001"
   },
-  "amount" : 50
+  "withdrawnAmount" : {
+    "value" : 50
+  }
 }

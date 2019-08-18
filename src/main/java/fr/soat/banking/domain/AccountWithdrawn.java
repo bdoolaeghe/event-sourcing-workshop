@@ -13,11 +13,11 @@ import static lombok.AccessLevel.PRIVATE;
 public class AccountWithdrawn extends AccountEvent {
 
     @Getter
-    private Integer amount;
+    private Amount withdrawnAmount;
 
-    public AccountWithdrawn(AccountId accountId, Integer amount) {
+    public AccountWithdrawn(AccountId accountId, Amount withdrawnAmount) {
         super(accountId);
-        this.amount = amount;
+        this.withdrawnAmount = withdrawnAmount;
     }
 
     @Override

@@ -1,11 +1,10 @@
 package fr.soat.banking.domain;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-import java.awt.event.ActionListener;
-
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Amount {
 
@@ -46,5 +45,9 @@ public class Amount {
 
     public Amount multipliedBy(float factor) {
         return Amount.of(asFloat() * factor);
+    }
+
+    public boolean greaterThan(Amount anotherAmount) {
+        return asFloat() > anotherAmount.asFloat();
     }
 }

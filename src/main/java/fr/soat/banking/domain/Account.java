@@ -18,7 +18,7 @@ public class Account extends AggregateRoot<AccountId> {
     private String owner;
     private String number;
     private Currency currency;
-    private Integer balance = 0;
+    private Amount balance;
     private AccountStatus status = NEW;
 
     public Account(AccountId accountId) {
@@ -31,7 +31,7 @@ public class Account extends AggregateRoot<AccountId> {
     void apply(AccountOpened accountOpened) {
         this.owner = accountOpened.getOwner();
         this.number = accountOpened.getNumber();
-        this.balance = 0;
+        this.balance = Amount.of(0);
         this.status = OPEN;
         // for retro compatibility, currency is EUR when unspecified at account opening
         this.currency = Optional.ofNullable(accountOpened.getCurrency()).orElse(Currency.EUR);
@@ -40,13 +40,13 @@ public class Account extends AggregateRoot<AccountId> {
 
     @EvolutionFunction
     void apply(AccountDeposited accountDeposited) {
-        this.balance += accountDeposited.getAmount();
+        this.balance = this.balance.plus(accountDeposited.getDepositedAmount());
         recordChange(accountDeposited);
     }
 
     @EvolutionFunction
     void apply(AccountWithdrawn accountWithdrawn) {
-        this.balance -= accountWithdrawn.getAmount();
+        this.balance = this.balance.minus(accountWithdrawn.getWithdrawnAmount());
         recordChange(accountWithdrawn);
     }
 
@@ -75,7 +75,7 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account deposit(Integer amount) {
+    public Account deposit(Amount amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not deposit on a " + status + " account");
         }
@@ -85,12 +85,12 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account withdraw(Integer amount) {
+    public Account withdraw(Amount amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not withdraw on a " + status + " account");
         }
 
-        if (amount > balance) {
+        if (amount.greaterThan(balance)) {
             throw new InsufficientFundsException("Withdrawal of " + amount + " can not be applied with balance of " + balance);
         }
 

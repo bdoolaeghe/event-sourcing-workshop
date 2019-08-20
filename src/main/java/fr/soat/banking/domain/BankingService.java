@@ -33,6 +33,11 @@ public class BankingService {
 
     @Command
     public void withdraw(AccountId id, Amount amount) {
+        withdraw(id, amount, Currency.EUR);
+    }
+
+    @Command
+    public void withdraw(AccountId id, Amount amount, Currency currency) {
         final Account account = repository.load(id);
         account.withdraw(amount);
         repository.save(account);

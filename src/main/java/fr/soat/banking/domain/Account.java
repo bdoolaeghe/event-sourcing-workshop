@@ -59,7 +59,7 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account register(String owner) {
+    public Account open(String owner) {
         if (status != NEW) {
             throw new UnsupportedOperationException("Can not register a " + status + " account");
         }
@@ -104,4 +104,54 @@ public class Account extends AggregateRoot<AccountId> {
         return this;
     }
 
+    /* Transfer management */
+
+    @DecisionFunction
+    public Account requestTransfer(Account targetAccount, int amount) {
+        if (status != OPEN) {
+            throw new UnsupportedOperationException("Can not transfer from a " + status + " account");
+        }
+
+        apply(new TransferRequested(getId(), targetAccount.getId(), amount));
+
+        if (amount <= balance) {
+            targetAccount.receiveTransfer(this, amount);
+        } else {
+            apply(new TransferRefused(getId(), targetAccount.getId(), amount));
+        }
+
+        return this;
+    }
+
+    @DecisionFunction
+    public void receiveTransfer(Account sourceAccount, int amount) {
+        if (status != OPEN) {
+            sourceAccount.apply(new TransferRefused(sourceAccount.getId(), getId(), amount));
+        } else {
+            apply(new TransferReceived(sourceAccount.getId(), getId(), amount));
+            sourceAccount.apply(new TransferSent(sourceAccount.getId(), getId(), amount));
+        }
+    }
+
+    @EvolutionFunction
+    void apply(TransferRequested transferRequested) {
+        recordChange(transferRequested);
+    }
+
+    @EvolutionFunction
+    void apply(TransferRefused event) {
+        recordChange(event);
+    }
+
+    @EvolutionFunction
+    void apply(TransferSent event) {
+        this.balance -= event.getAmount();
+        recordChange(event);
+    }
+
+    @EvolutionFunction
+    void apply(TransferReceived event) {
+        this.balance += event.getAmount();
+        recordChange(event);
+    }
 }

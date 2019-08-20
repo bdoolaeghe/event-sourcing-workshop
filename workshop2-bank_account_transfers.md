@@ -1,57 +1,67 @@
-Bank account in an event-sourcing style
-=======================================
+Event-sourcing and aggregate messages
+=====================================
 
-*Goal: write your first simple event sourcing style application.*
-* understand *eventstore* vs. *state store*
-* implement *event stream saving* and aggregates *hydrating*
-* implement a simple Bank acacount aggregate as a [Finite State Machine](https://fr.wikipedia.org/wiki/Automate_fini)
+*Goal: Understand how aggregates can communicate together in a simple business process.*
       
-## Understand the bank account business
-We are going to implement the following *bank account* use cases:
-### Account creation
+## Transfer from an account to another
+We are going to implement the *Transfer* feature. The *Transfer* process implies a *sender account* and a *receiver account*. 
+The given *amount* should be deduced from *sender account* and added to the *receiver account* 
+### Succeeding transfer
 ```gherkin
-Given I am a customer
-When I register for a new bank account
-Then I become the owner of a new open account with a balance of 0.
+Given a sender account "A" and a receiver account "B"
+And "A" has a balance of 200
+And "B" has a balance of 0
+When I transfer 50 from "A" to "B"
+Then "A" balance is 150
+Then "B" balance is 50
 ```
-### Deposit
+### Transfer with insufficient funds
 ```gherkin
-Given I am the owner of an open account
-When I deposit money on my account
-Then my account balance is increased of the given deposit.
+Given a sender account "A" and a receiver account "B"
+And "A" has a balance of 10
+And "B" has a balance of 0
+When I transfer 50 from "A" to "B"
+Then "A" balance is 10
+Then "B" balance is 0
 ```
-### Withdrawal
+### Transfer to a closed account
 ```gherkin
-Given I am the owner of an open account
-And my balance is 200
-When I withdraw from my account an amount up to 200
-Then my account balance is decreased of the given withdrawal.
+Given a sender account "A" and a receiver account "B"
+And "A" has a balance of 200
+And "B" is closed
+When I transfer 50 from "A" to "B"
+Then "A" balance is 200
 ```
-### Withdrawal failure
-```gherkin
-Given I am the owner of an open account
-And my balance is 200
-When I withdraw from my account an amount greater than 200
-Then the withdrawal is refused
-And my account balance stay to 200.
+
+## Implementation
+### Nominal case
+The `transfer` command needs to orchestrate 2 actions:
+1. remove amount from source account.
+2. add amount to target account. 
+
+As the business logic orchestration is pretty simple, let's implement it in the *decision functions* of the `Account` aggregate.
+Check the `command` implementation in `BankingService`:
 ```
-### Account closing
-```gherkin
-Given I am the owner of an open account
-When I close my account
-Then my account is closed and no deposit/withdrawal is possible any more.
+    @Command
+    public void transfer(AccountId idFrom, AccountId idTo, int amount) {
+        final Account accountFrom = repository.load(idFrom);
+        final Account accountTo = repository.load(idTo);
+        accountFrom.requestTransfer(accountTo, amount);
+        repository.save(accountFrom);
+        repository.save(accountTo);
+    } 
 ```
-## Account states and transitions
-A *bank account* can be seen as an aggregate with a *state*, on which we can apply some actions. 
-Perfect to design as a [FSM](https://fr.wikipedia.org/wiki/Automate_fini) !
-![bank account FSM](/assets/bank_account_fsm.png)                 
+
+
+## How to manage failures ?
+
+When something wrong is requested (e.g. withraw from a closed account), 
+we decided until now to implement the failure with an exception.
+
+Sometimes, it will be interesting  
 
 ## Commands
-Regarding to the previous use cases, The following commands have been identified:
-* open an account
-* deposit money
-* withdraw money
-* close an account
+The command `BankingService.transfer(AccountId from, AccountId to, int amount)` is already implemented.
 
 ## Business events
 The following business events have been identified:

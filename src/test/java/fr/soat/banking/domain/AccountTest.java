@@ -1,32 +1,30 @@
 package fr.soat.banking.domain;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import static fr.soat.banking.domain.AccountStatus.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertTrue;
 
 public class AccountTest {
 
     @Test
-    public void should_succeed_a_classic_FSM_scenario() {
+    public void should_succeed_a_classic_scenario() {
         // Given
         Account account = Account.create();
 
         // When
-        account.register("toto")
+        account.open("toto")
                 .deposit(100)
                 .deposit(100)
                 .withdraw(200)
                 .close();
 
         // Then
-        Assertions.assertThat(account.getOwner()).isEqualTo("toto");
-        Assertions.assertThat(account.getBalance()).isEqualTo(0);
-        Assertions.assertThat(account.getVersion()).isEqualTo(5);
-        Assertions.assertThat(account.getStatus()).isEqualTo(CLOSED);
-        Assertions.assertThat(account.getChanges())
+        assertThat(account.getOwner()).isEqualTo("toto");
+        assertThat(account.getBalance()).isEqualTo(0);
+        assertThat(account.getVersion()).isEqualTo(5);
+        assertThat(account.getStatus()).isEqualTo(CLOSED);
+        assertThat(account.getChanges())
                 .extracting(event -> tuple(event.getClass()))
                 .containsExactly(
                         tuple(AccountOpened.class),
@@ -44,7 +42,7 @@ public class AccountTest {
         Account account = Account.create();
 
         // When
-        assertThatThrownBy(() -> account.register("toto")
+        assertThatThrownBy(() -> account.open("toto")
                 .deposit(100)
                 .withdraw(200))
                 .isInstanceOf(InsufficientFundsException.class)
@@ -72,11 +70,11 @@ public class AccountTest {
     public void should_fail_with_invalid_decisions_on_open_account() {
         // Given
         Account account = Account.create();
-        account.register("alice");
+        account.open("alice");
         assertThat(account.getStatus()).isEqualTo(OPEN);
 
         // When
-        assertThatThrownBy(() -> account.register("bob"))
+        assertThatThrownBy(() -> account.open("bob"))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
@@ -84,17 +82,119 @@ public class AccountTest {
     public void should_fail_with_invalid_decisions_on_closed_account() {
         // Given
         Account account = Account.create();
-        account.register("alice")
+        account.open("alice")
                 .close();
         assertThat(account.getStatus()).isEqualTo(CLOSED);
 
         // When
-        assertThatThrownBy(() -> account.register("bob"))
+        assertThatThrownBy(() -> account.open("bob"))
                 .isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> account.withdraw(100))
                 .isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> account.deposit(100))
                 .isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> account.close())
-                .isInstanceOf(UnsupportedOperationException.class);    }
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    public void should_succeed_to_transfer() {
+        // Given
+        Account accountFrom = Account
+                .create()
+                .open("alice")
+                .deposit(200);
+        Account accountTo = Account
+                .create()
+                .open("bob");
+
+        // When
+        accountFrom.requestTransfer( accountTo, 50);
+
+        // Then
+        assertThat(accountFrom.getBalance()).isEqualTo(150);
+        assertThat(accountFrom.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountDeposited.class),
+                        tuple(TransferRequested.class),
+                        tuple(TransferSent.class)
+                );
+        assertThat(accountTo.getBalance()).isEqualTo(50);
+        assertThat(accountTo.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(TransferReceived.class)
+                );
+    }
+
+    @Test
+    public void should_fail_to_transfer_when_funds_are_insuffisent() {
+        // Given
+        Account accountFrom = Account
+                .create()
+                .open("alice")
+                .deposit(10);
+        Account accountTo = Account
+                .create()
+                .open("bob");
+
+        // When
+        accountFrom.requestTransfer( accountTo, 50);
+
+        // Then
+        assertThat(accountFrom.getBalance()).isEqualTo(10);
+        assertThat(accountFrom.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountDeposited.class),
+                        tuple(TransferRequested.class),
+                        tuple(TransferRefused.class)
+                );
+        assertThat(accountTo.getBalance()).isEqualTo(0);
+        assertThat(accountTo.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class)
+                );
+
+    }
+
+    @Test
+    public void should_fail_to_transfer_to_closed_account() {
+        // Given
+        Account accountFrom = Account
+                .create()
+                .open("alice")
+                .deposit(200);
+        Account accountTo = Account
+                .create()
+                .open("bob")
+                .close();
+
+        // When
+        accountFrom.requestTransfer( accountTo, 50);
+
+        // Then
+        assertThat(accountFrom.getBalance()).isEqualTo(200);
+        assertThat(accountFrom.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountDeposited.class),
+                        tuple(TransferRequested.class),
+                        tuple(TransferRefused.class)
+                );
+        assertThat(accountTo.getBalance()).isEqualTo(0);
+        assertThat(accountTo.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountClosed.class)
+                );
+    }
+
 }

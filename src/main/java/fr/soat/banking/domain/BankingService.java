@@ -14,7 +14,7 @@ public class BankingService {
     public AccountId openAccount(String owner) {
         final Account account = Account
                         .create()
-                        .register(owner);
+                        .open(owner);
 
         repository.save(account);
         return account.getId();
@@ -43,5 +43,14 @@ public class BankingService {
         final Account account = repository.load(id);
         account.close();
         repository.save(account);
+    }
+
+    @Command
+    public void transfer(AccountId idFrom, AccountId idTo, int amount) {
+        final Account accountFrom = repository.load(idFrom);
+        final Account accountTo = repository.load(idTo);
+        accountFrom.requestTransfer(accountTo, amount);
+        repository.save(accountFrom);
+        repository.save(accountTo);
     }
 }

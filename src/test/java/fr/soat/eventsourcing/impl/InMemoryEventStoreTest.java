@@ -19,7 +19,7 @@ import static org.assertj.core.util.Lists.newArrayList;
 
 public class InMemoryEventStoreTest {
 
-    EventStore eventStore = new InMemoryEventStore();
+    EventStore eventStore = new InMemoryEventStore(new InMemoryEventBus());
     private AccountId accountId = AccountId.next();
 
     @Before

@@ -1,6 +1,7 @@
 package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.api.Event;
+import fr.soat.eventsourcing.api.EventBus;
 import fr.soat.eventsourcing.api.EventStore;
 
 import java.util.List;
@@ -14,6 +15,10 @@ public class AccountRepository {
 
     public AccountRepository(EventStore eventStore) {
         this.eventStore = eventStore;
+    }
+
+    public EventBus getEventBus() {
+        return eventStore.getEventBus();
     }
 
     public void save(Account account) {

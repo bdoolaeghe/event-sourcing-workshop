@@ -6,22 +6,22 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
-public class TransferRequested extends AccountEvent {
+public class TransferRequested extends TransferEvent {
 
     @Getter
-    private final Integer amount;
-    @Getter
-    private final AccountId targetAccountId;
+    private final AccountId receiverAccountId;
 
-    public TransferRequested(AccountId fromAccountId, AccountId toAccountId, Integer amount) {
-        super(fromAccountId);
-        this.targetAccountId = toAccountId;
-        this.amount = amount;
+    public TransferRequested(AccountId accountId, AccountId receiverAccountId, Integer amount) {
+        super(accountId,  amount);
+        this.receiverAccountId = receiverAccountId;
+    }
+    @Override
+    public void applyOn(TransferProcessManager transferProcessManager) {
+        transferProcessManager.on(this);
     }
 
     @Override
     void applyOn(Account account) {
-        account.apply(this);
+        account.on(this);
     }
-
 }

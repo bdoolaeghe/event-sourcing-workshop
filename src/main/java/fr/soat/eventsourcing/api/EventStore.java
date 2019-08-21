@@ -10,4 +10,5 @@ public interface EventStore {
     void store(AggregateId aggregateId, List<Event> events);
     @VisibleForTesting
     void clear();
+    EventBus getEventBus();
 }

@@ -6,18 +6,15 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
-public class AccountWithdrawn extends AccountEvent {
+public abstract class TransferEvent extends AccountEvent {
 
     @Getter
     private final Integer amount;
 
-    public AccountWithdrawn(AccountId accountId, Integer amount) {
+    public TransferEvent(AccountId accountId, int amount) {
         super(accountId);
         this.amount = amount;
     }
 
-    @Override
-    public void applyOn(Account account) {
-        account.on(this);
-    }
+    public abstract void applyOn(TransferProcessManager transferProcessManager);
 }

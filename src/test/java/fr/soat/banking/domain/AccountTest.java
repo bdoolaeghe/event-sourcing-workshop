@@ -109,7 +109,7 @@ public class AccountTest {
                 .open("bob");
 
         // When
-        accountFrom.requestTransfer( accountTo, 50);
+        accountFrom.requestTransfer(accountTo.getId(), 50);
 
         // Then
         assertThat(accountFrom.getBalance()).isEqualTo(150);
@@ -142,7 +142,7 @@ public class AccountTest {
                 .open("bob");
 
         // When
-        accountFrom.requestTransfer( accountTo, 50);
+        accountFrom.requestTransfer(accountTo.getId(), 50);
 
         // Then
         assertThat(accountFrom.getBalance()).isEqualTo(10);
@@ -176,7 +176,7 @@ public class AccountTest {
                 .close();
 
         // When
-        accountFrom.requestTransfer( accountTo, 50);
+        accountFrom.requestTransfer(accountTo.getId(), 50);
 
         // Then
         assertThat(accountFrom.getBalance()).isEqualTo(200);

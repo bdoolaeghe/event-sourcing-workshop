@@ -11,7 +11,7 @@ import java.util.UUID;
 import static fr.soat.banking.domain.AccountStatus.*;
 
 @Getter
-public class Account extends AggregateRoot<AccountId> {
+public class Account extends AggregateRoot<AccountId> implements TransferEventListener{
 
     private String owner;
     private String number;
@@ -25,7 +25,7 @@ public class Account extends AggregateRoot<AccountId> {
     /* aggregate evolutions  */
 
     @EvolutionFunction
-    void apply(AccountOpened accountOpened) {
+    void on(AccountOpened accountOpened) {
         this.owner = accountOpened.getOwner();
         this.number = accountOpened.getNumber();
         this.balance = 0;
@@ -34,19 +34,19 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @EvolutionFunction
-    void apply(AccountDeposited accountDeposited) {
+    void on(AccountDeposited accountDeposited) {
         this.balance += accountDeposited.getAmount();
         recordChange(accountDeposited);
     }
 
     @EvolutionFunction
-    void apply(AccountWithdrawn accountWithdrawn) {
+    void on(AccountWithdrawn accountWithdrawn) {
         this.balance -= accountWithdrawn.getAmount();
         recordChange(accountWithdrawn);
     }
 
     @EvolutionFunction
-    void apply(AccountClosed accountClosed) {
+    void on(AccountClosed accountClosed) {
         this.status = CLOSED;
         recordChange(accountClosed);
     }
@@ -64,7 +64,7 @@ public class Account extends AggregateRoot<AccountId> {
             throw new UnsupportedOperationException("Can not register a " + status + " account");
         }
         AccountOpened event = new AccountOpened(getId(), owner, UUID.randomUUID().toString());
-        apply(event);
+        on(event);
         return this;
     }
 
@@ -74,7 +74,7 @@ public class Account extends AggregateRoot<AccountId> {
             throw new UnsupportedOperationException("Can not deposit on a " + status + " account");
         }
         AccountDeposited event = new AccountDeposited(getId(), amount);
-        apply(event);
+        on(event);
         return this;
     }
 
@@ -89,7 +89,7 @@ public class Account extends AggregateRoot<AccountId> {
         }
 
         AccountWithdrawn event = new AccountWithdrawn(getId(), amount);
-        apply(event);
+        on(event);
         return this;
     }
 
@@ -100,68 +100,61 @@ public class Account extends AggregateRoot<AccountId> {
         }
 
         AccountClosed event = new AccountClosed(getId());
-        apply(event);
+        on(event);
         return this;
     }
 
     /* Transfer management */
 
     @DecisionFunction
-    public Account requestTransfer(Account targetAccount, int amount) {
+    public Account requestTransfer(AccountId targetAccountId, int amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not transfer from a " + status + " account");
         }
-
-        apply(new TransferRequested(getId(), targetAccount.getId(), amount));
-
-        if (amount <= balance) {
-            targetAccount.receiveTransfer(this, amount);
-        } else {
-            refuseTransfer(targetAccount.getId(), amount);
-        }
-
+        on(new TransferRequested(getId(), targetAccountId, amount));
         return this;
     }
 
     @DecisionFunction
-    public void receiveTransfer(Account sourceAccount, int amount) {
-        if (status != OPEN) {
-            sourceAccount.refuseTransfer(getId(), amount);
-        } else {
-            apply(new TransferReceived(sourceAccount.getId(), getId(), amount));
-            sourceAccount.sendTransfer(getId(), amount);
-        }
+    public void receiveTransfer(AccountId sourceAccountId, int amount) {
+        on(new TransferReceived(sourceAccountId, getId(), amount));
     }
 
     @DecisionFunction
     public void refuseTransfer(AccountId targetAccountId, int amount ) {
-        apply(new TransferRefused(getId(), targetAccountId, amount));
+        on(new TransferRefused(getId(), targetAccountId, amount));
     }
 
     @DecisionFunction
     public void sendTransfer(AccountId targetAccountId, int amount ) {
-        apply(new TransferSent(getId(), targetAccountId, amount));
+        on(new TransferSent(getId(), targetAccountId, amount));
     }
 
     @EvolutionFunction
-    void apply(TransferRequested transferRequested) {
+    public  void on(TransferRequested transferRequested) {
         recordChange(transferRequested);
     }
 
     @EvolutionFunction
-    void apply(TransferRefused event) {
+    public void on(TransferRefused event) {
         recordChange(event);
     }
 
     @EvolutionFunction
-    void apply(TransferSent event) {
+    public void on(TransferSent event) {
         this.balance -= event.getAmount();
         recordChange(event);
     }
 
     @EvolutionFunction
-    void apply(TransferReceived event) {
+    public void on(TransferReceived event) {
         this.balance += event.getAmount();
         recordChange(event);
+    }
+
+    @Override
+    @EvolutionFunction
+    public void on(TransferEvent event) {
+        event.applyOn(this);
     }
 }

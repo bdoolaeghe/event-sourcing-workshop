@@ -13,7 +13,7 @@ public class AccountClosed extends AccountEvent {
 
     @Override
     public void applyOn(Account account) {
-        account.apply(this);
+        account.on(this);
     }
 
 }

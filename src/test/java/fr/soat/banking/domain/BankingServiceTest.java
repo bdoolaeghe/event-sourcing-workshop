@@ -1,5 +1,6 @@
 package fr.soat.banking.domain;
 
+import fr.soat.eventsourcing.impl.InMemoryEventBus;
 import fr.soat.eventsourcing.impl.InMemoryEventStore;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -8,7 +9,7 @@ import static fr.soat.banking.domain.AccountStatus.CLOSED;
 
 public class BankingServiceTest {
 
-    AccountRepository repository = new AccountRepository(new InMemoryEventStore());
+    AccountRepository repository = new AccountRepository(new InMemoryEventStore(new InMemoryEventBus()));
     BankingService bankingService = new BankingService(repository);
 
     @Test

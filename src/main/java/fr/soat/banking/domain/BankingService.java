@@ -4,10 +4,13 @@ import fr.soat.eventsourcing.api.Command;
 
 public class BankingService {
 
-    private AccountRepository repository;
+    private final AccountRepository repository;
+    private final TransferProcessManager transferProcessManager;
 
     public BankingService(AccountRepository repository) {
         this.repository = repository;
+        this.transferProcessManager = new TransferProcessManager(repository);
+        repository.getEventBus().register(transferProcessManager);
     }
 
     @Command
@@ -48,9 +51,7 @@ public class BankingService {
     @Command
     public void transfer(AccountId idFrom, AccountId idTo, int amount) {
         final Account accountFrom = repository.load(idFrom);
-        final Account accountTo = repository.load(idTo);
-        accountFrom.requestTransfer(accountTo, amount);
+        accountFrom.requestTransfer(idTo, amount);
         repository.save(accountFrom);
-        repository.save(accountTo);
     }
 }

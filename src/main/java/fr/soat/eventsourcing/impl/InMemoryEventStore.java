@@ -1,10 +1,8 @@
 package fr.soat.eventsourcing.impl;
 
 import com.google.common.collect.ArrayListMultimap;
-import fr.soat.eventsourcing.api.AggregateId;
-import fr.soat.eventsourcing.api.Event;
-import fr.soat.eventsourcing.api.EventConcurrentUpdateException;
-import fr.soat.eventsourcing.api.EventStore;
+import fr.soat.eventsourcing.api.*;
+import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +13,12 @@ public class InMemoryEventStore implements EventStore {
 
     private final ArrayListMultimap<String, Event> store = ArrayListMultimap.create();
     private final Object lock = new Object();
+    @Getter
+    private final EventBus eventBus;
+
+    public InMemoryEventStore(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     @Override
     public List<Event> loadEvents(AggregateId aggregateId) {
@@ -30,7 +34,9 @@ public class InMemoryEventStore implements EventStore {
             checkVersion(previousEvents, events);
 
             for (int i = previousEvents.size(); i < events.size(); i++) {
-                previousEvents.add(events.get(i));
+                Event evnet = events.get(i);
+                previousEvents.add(evnet);
+                eventBus.publish(evnet);
             }
         }
     }

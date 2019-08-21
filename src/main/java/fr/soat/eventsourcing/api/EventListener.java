@@ -1,7 +1,7 @@
 package fr.soat.eventsourcing.api;
 
-public interface EventListener<T extends Event> {
+public interface EventListener {
 
-    void on(T event);
+    void on(Event event);
 
 }

@@ -2,6 +2,7 @@ package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.api.AggregateId;
 import fr.soat.eventsourcing.api.Event;
+import fr.soat.eventsourcing.api.EventListener;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,4 +19,8 @@ public abstract class AccountEvent implements Event {
     }
 
     abstract void applyOn(Account account);
+
+    @Override
+    public void applyOn(EventListener eventListener) {}
+
 }

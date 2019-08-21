@@ -1,5 +1,6 @@
 package fr.soat.banking.domain;
 
+import fr.soat.eventsourcing.api.EventListener;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

@@ -3,6 +3,7 @@ package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.api.AggregateRoot;
 import fr.soat.eventsourcing.api.DecisionFunction;
+import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EvolutionFunction;
 import lombok.Getter;
 
@@ -107,11 +108,11 @@ public class Account extends AggregateRoot<AccountId> implements TransferEventLi
     /* Transfer management */
 
     @DecisionFunction
-    public Account requestTransfer(AccountId targetAccountId, int amount) {
+    public Account requestTransfer(AccountId receiverAccountId, int amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not transfer from a " + status + " account");
         }
-        on(new TransferRequested(getId(), targetAccountId, amount));
+        on(new TransferRequested(getId(), receiverAccountId, amount));
         return this;
     }
 
@@ -154,7 +155,8 @@ public class Account extends AggregateRoot<AccountId> implements TransferEventLi
 
     @Override
     @EvolutionFunction
-    public void on(TransferEvent event) {
+    public void on(Event event) {
         event.applyOn(this);
     }
+
 }

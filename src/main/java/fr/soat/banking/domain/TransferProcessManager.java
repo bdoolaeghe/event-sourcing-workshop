@@ -1,5 +1,7 @@
 package fr.soat.banking.domain;
 
+import fr.soat.eventsourcing.api.Event;
+
 import static fr.soat.banking.domain.AccountStatus.OPEN;
 
 public class TransferProcessManager implements TransferEventListener {
@@ -11,8 +13,12 @@ public class TransferProcessManager implements TransferEventListener {
     }
 
     @Override
-    public void on(TransferEvent event) {
-        event.applyOn(this);
+    public void on(Event event) {
+        if (event instanceof TransferEvent) {
+            ((TransferEvent) event).applyOn(this);
+        } else {
+            event.applyOn(this);
+        }
     }
 
     public void on(TransferRequested transferRequested) {

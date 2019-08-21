@@ -117,7 +117,7 @@ public class Account extends AggregateRoot<AccountId> {
         if (amount <= balance) {
             targetAccount.receiveTransfer(this, amount);
         } else {
-            apply(new TransferRefused(getId(), targetAccount.getId(), amount));
+            refuseTransfer(targetAccount.getId(), amount);
         }
 
         return this;
@@ -126,11 +126,21 @@ public class Account extends AggregateRoot<AccountId> {
     @DecisionFunction
     public void receiveTransfer(Account sourceAccount, int amount) {
         if (status != OPEN) {
-            sourceAccount.apply(new TransferRefused(sourceAccount.getId(), getId(), amount));
+            sourceAccount.refuseTransfer(getId(), amount);
         } else {
             apply(new TransferReceived(sourceAccount.getId(), getId(), amount));
-            sourceAccount.apply(new TransferSent(sourceAccount.getId(), getId(), amount));
+            sourceAccount.sendTransfer(getId(), amount);
         }
+    }
+
+    @DecisionFunction
+    public void refuseTransfer(AccountId targetAccountId, int amount ) {
+        apply(new TransferRefused(getId(), targetAccountId, amount));
+    }
+
+    @DecisionFunction
+    public void sendTransfer(AccountId targetAccountId, int amount ) {
+        apply(new TransferSent(getId(), targetAccountId, amount));
     }
 
     @EvolutionFunction

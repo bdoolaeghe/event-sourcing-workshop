@@ -22,6 +22,6 @@ public class TransferRequested extends TransferEvent {
 
     @Override
     void applyOn(Account account) {
-        account.on(this);
+        account.apply(this);
     }
 }

@@ -1,16 +1,17 @@
 package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.api.Command;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class BankingService {
 
     private final AccountRepository repository;
-    private final TransferProcessManager transferProcessManager;
 
+    @Autowired
     public BankingService(AccountRepository repository) {
         this.repository = repository;
-        this.transferProcessManager = new TransferProcessManager(repository);
-        repository.getEventBus().register(transferProcessManager);
     }
 
     @Command

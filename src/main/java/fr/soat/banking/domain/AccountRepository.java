@@ -1,24 +1,20 @@
 package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.api.Event;
-import fr.soat.eventsourcing.api.EventBus;
 import fr.soat.eventsourcing.api.EventStore;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-
+@Repository
 public class AccountRepository {
 
     private final EventStore eventStore;
 
     public AccountRepository(EventStore eventStore) {
         this.eventStore = eventStore;
-    }
-
-    public EventBus getEventBus() {
-        return eventStore.getEventBus();
     }
 
     public void save(Account account) {

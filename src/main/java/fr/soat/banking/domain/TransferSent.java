@@ -23,6 +23,6 @@ public class TransferSent extends TransferEvent {
 
     @Override
     void applyOn(Account account) {
-        account.on(this);
+        account.apply(this);
     }
 }

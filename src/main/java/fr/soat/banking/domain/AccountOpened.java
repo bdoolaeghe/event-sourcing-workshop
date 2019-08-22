@@ -1,6 +1,5 @@
 package fr.soat.banking.domain;
 
-import fr.soat.eventsourcing.api.EventListener;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,7 +20,7 @@ public class AccountOpened extends AccountEvent {
 
     @Override
     public void applyOn(Account account) {
-        account.on(this);
+        account.apply(this);
     }
 
 }

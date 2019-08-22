@@ -22,6 +22,6 @@ public class AccountDeposited extends AccountEvent {
 
     @Override
     public void applyOn(Account account) {
-        account.on(this);
+        account.apply(this);
     }
 }

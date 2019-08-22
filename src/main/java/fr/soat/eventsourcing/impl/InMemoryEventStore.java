@@ -2,22 +2,26 @@ package fr.soat.eventsourcing.impl;
 
 import com.google.common.collect.ArrayListMultimap;
 import fr.soat.eventsourcing.api.*;
-import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.reverse;
 
+@Repository
 public class InMemoryEventStore implements EventStore {
 
     private final ArrayListMultimap<String, Event> store = ArrayListMultimap.create();
     private final Object lock = new Object();
-    @Getter
-    private final EventBus eventBus;
 
-    public InMemoryEventStore(EventBus eventBus) {
-        this.eventBus = eventBus;
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    public InMemoryEventStore(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -34,9 +38,9 @@ public class InMemoryEventStore implements EventStore {
             checkVersion(previousEvents, events);
 
             for (int i = previousEvents.size(); i < events.size(); i++) {
-                Event evnet = events.get(i);
-                previousEvents.add(evnet);
-                eventBus.publish(evnet);
+                Event event = events.get(i);
+                previousEvents.add(event);
+                eventPublisher.publishEvent(event);
             }
         }
     }

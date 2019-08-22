@@ -1,17 +1,24 @@
 package fr.soat.banking.domain;
 
-import fr.soat.eventsourcing.impl.InMemoryEventBus;
-import fr.soat.eventsourcing.impl.InMemoryEventStore;
+import fr.soat.banking.application.configuration.BankConfig;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static fr.soat.banking.domain.AccountStatus.CLOSED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = BankConfig.class)
 public class BankingServiceTest {
 
-    AccountRepository repository = new AccountRepository(new InMemoryEventStore(new InMemoryEventBus()));
-    BankingService bankingService = new BankingService(repository);
+    @Autowired
+    AccountRepository repository;
+    @Autowired
+    BankingService bankingService;
 
     @Test
     public void should_register_a_new_account_then_use_then_close() {

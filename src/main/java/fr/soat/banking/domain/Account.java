@@ -118,7 +118,7 @@ public class Account extends AggregateRoot<AccountId> implements TransferEventLi
 
     @DecisionFunction
     public void receiveTransfer(AccountId sourceAccountId, int amount) {
-        on(new TransferReceived(sourceAccountId, getId(), amount));
+        on(new TransferReceived(getId(), sourceAccountId, amount));
     }
 
     @DecisionFunction

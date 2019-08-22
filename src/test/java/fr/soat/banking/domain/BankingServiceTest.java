@@ -2,10 +2,11 @@ package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.impl.InMemoryEventBus;
 import fr.soat.eventsourcing.impl.InMemoryEventStore;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import static fr.soat.banking.domain.AccountStatus.CLOSED;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class BankingServiceTest {
 
@@ -24,23 +25,97 @@ public class BankingServiceTest {
 
         // Then
         Account reloadedAccount = repository.load(accountId);
-        Assertions.assertThat(reloadedAccount.getStatus()).isEqualTo(CLOSED);
-        Assertions.assertThat(reloadedAccount.getBalance()).isEqualTo(0);
+        assertThat(reloadedAccount.getStatus()).isEqualTo(CLOSED);
+        assertThat(reloadedAccount.getBalance()).isEqualTo(0);
     }
 
     @Test
     public void should_successfully_transfer() {
         AccountId aliceAccountId = bankingService.openAccount("alice");
+        bankingService.deposit(aliceAccountId, 200);
         AccountId bobAccountId = bankingService.openAccount("bob");
 
         // When
-        bankingService.deposit(aliceAccountId, 200);
         bankingService.transfer(aliceAccountId, bobAccountId, 50);
 
         // Then
         Account aliceAccount = repository.load(aliceAccountId);
         Account bobAccount = repository.load(bobAccountId);
-        Assertions.assertThat(aliceAccount.getBalance()).isEqualTo(150);
-        Assertions.assertThat(bobAccount.getBalance()).isEqualTo(50);
+        assertThat(aliceAccount.getBalance()).isEqualTo(150);
+        assertThat(aliceAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountDeposited.class),
+                        tuple(TransferRequested.class),
+                        tuple(TransferSent.class)
+                );
+        assertThat(bobAccount.getBalance()).isEqualTo(50);
+        assertThat(bobAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(TransferReceived.class)
+                );
+    }
+
+    @Test
+    public void should_fail_transfer_to_closed_account() {
+        AccountId aliceAccountId = bankingService.openAccount("alice");
+        bankingService.deposit(aliceAccountId, 200);
+        AccountId bobAccountId = bankingService.openAccount("bob");
+        bankingService.closeAccount(bobAccountId);
+
+        // When
+        bankingService.transfer(aliceAccountId, bobAccountId, 50);
+
+        // Then
+        Account aliceAccount = repository.load(aliceAccountId);
+        Account bobAccount = repository.load(bobAccountId);
+        assertThat(aliceAccount.getBalance()).isEqualTo(200);
+        assertThat(aliceAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountDeposited.class),
+                        tuple(TransferRequested.class),
+                        tuple(TransferRefused.class)
+                );
+        assertThat(bobAccount.getBalance()).isEqualTo(0);
+        assertThat(bobAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountClosed.class)
+                );
+    }
+
+    @Test
+    public void should_fail_transfer_when_funds_are_insufficient() {
+        AccountId aliceAccountId = bankingService.openAccount("alice");
+        bankingService.deposit(aliceAccountId, 200);
+        AccountId bobAccountId = bankingService.openAccount("bob");
+
+        // When
+        bankingService.transfer(aliceAccountId, bobAccountId, 250);
+
+        // Then
+        Account aliceAccount = repository.load(aliceAccountId);
+        Account bobAccount = repository.load(bobAccountId);
+        assertThat(aliceAccount.getBalance()).isEqualTo(200);
+        assertThat(aliceAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class),
+                        tuple(AccountDeposited.class),
+                        tuple(TransferRequested.class),
+                        tuple(TransferRefused.class)
+                );
+        assertThat(bobAccount.getBalance()).isEqualTo(0);
+        assertThat(bobAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountOpened.class)
+                );
     }
 }

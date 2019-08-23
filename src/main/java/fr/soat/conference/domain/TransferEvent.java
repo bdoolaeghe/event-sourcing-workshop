@@ -1,5 +1,7 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain;
 
+import fr.soat.conference.domain.order.AccountEvent;
+import fr.soat.conference.domain.order.AccountId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,5 +18,5 @@ public abstract class TransferEvent extends AccountEvent {
         this.amount = amount;
     }
 
-    public abstract void applyOn(TransferProcessManager transferProcessManager);
+    public abstract void applyOn(ReservationProcessManager reservationProcessManager);
 }

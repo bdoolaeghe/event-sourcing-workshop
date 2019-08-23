@@ -1,5 +1,7 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain;
 
+import fr.soat.conference.domain.order.AccountId;
+import fr.soat.conference.domain.order.Order;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,12 +18,12 @@ public class TransferRequested extends TransferEvent {
         this.receiverAccountId = receiverAccountId;
     }
     @Override
-    public void applyOn(TransferProcessManager transferProcessManager) {
-        transferProcessManager.on(this);
+    public void applyOn(ReservationProcessManager reservationProcessManager) {
+        reservationProcessManager.on(this);
     }
 
     @Override
-    void applyOn(Account account) {
-        account.apply(this);
+    public void applyOn(Order order) {
+        order.apply(this);
     }
 }

@@ -1,4 +1,4 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain;
 
 public class InsufficientFundsException extends RuntimeException {
     public InsufficientFundsException(String msg) {

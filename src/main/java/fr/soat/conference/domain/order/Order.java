@@ -1,6 +1,7 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain.order;
 
 
+import fr.soat.conference.domain.*;
 import fr.soat.eventsourcing.api.AggregateRoot;
 import fr.soat.eventsourcing.api.DecisionFunction;
 import fr.soat.eventsourcing.api.EvolutionFunction;
@@ -8,17 +9,17 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-import static fr.soat.banking.domain.AccountStatus.*;
+import static fr.soat.conference.domain.order.OrderStatus.*;
 
 @Getter
-public class Account extends AggregateRoot<AccountId> {
+public class Order extends AggregateRoot<AccountId> {
 
     private String owner;
     private String number;
     private Integer balance = 0;
-    private AccountStatus status = NEW;
+    private OrderStatus status = NEW;
 
-    public Account(AccountId accountId) {
+    public Order(AccountId accountId) {
         super(accountId);
     }
 
@@ -54,12 +55,12 @@ public class Account extends AggregateRoot<AccountId> {
     /* decisions invoked by commands */
 
     @DecisionFunction
-    public static Account create() {
-        return new Account(AccountId.next());
+    public static Order create() {
+        return new Order(AccountId.next());
     }
 
     @DecisionFunction
-    public Account open(String owner) {
+    public Order open(String owner) {
         if (status != NEW) {
             throw new UnsupportedOperationException("Can not register a " + status + " account");
         }
@@ -69,7 +70,7 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account deposit(Integer amount) {
+    public Order deposit(Integer amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not deposit on a " + status + " account");
         }
@@ -79,7 +80,7 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account withdraw(Integer amount) {
+    public Order withdraw(Integer amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not withdraw on a " + status + " account");
         }
@@ -94,7 +95,7 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public Account close() {
+    public Order close() {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not close a " + status + " account");
         }
@@ -107,7 +108,7 @@ public class Account extends AggregateRoot<AccountId> {
     /* Transfer management */
 
     @DecisionFunction
-    public Account requestTransfer(AccountId receiverAccountId, int amount) {
+    public Order requestTransfer(AccountId receiverAccountId, int amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not transfer from a " + status + " account");
         }
@@ -131,23 +132,23 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @EvolutionFunction
-    void apply(TransferRequested transferRequested) {
+    public void apply(TransferRequested transferRequested) {
         recordChange(transferRequested);
     }
 
     @EvolutionFunction
-    void apply(TransferRefused event) {
+    public void apply(TransferRefused event) {
         recordChange(event);
     }
 
     @EvolutionFunction
-    void apply(TransferSent event) {
+    public void apply(TransferSent event) {
         this.balance -= event.getAmount();
         recordChange(event);
     }
 
     @EvolutionFunction
-    void apply(TransferReceived event) {
+    public void apply(TransferReceived event) {
         this.balance += event.getAmount();
         recordChange(event);
     }

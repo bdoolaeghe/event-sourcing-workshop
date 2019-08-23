@@ -1,50 +1,53 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain;
 
+import fr.soat.conference.domain.order.AccountId;
+import fr.soat.conference.domain.order.Order;
+import fr.soat.conference.infra.order.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import static fr.soat.banking.domain.AccountStatus.OPEN;
+import static fr.soat.conference.domain.order.OrderStatus.OPEN;
 
 @Service
 @Slf4j
-public class TransferProcessManager  {
+public class ReservationProcessManager {
 
-    private final AccountRepository accountRepository;
+    private final OrderRepository orderRepository;
 
     @Autowired
-    public TransferProcessManager(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public ReservationProcessManager(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
     @EventListener
     public void on(TransferRequested transferRequested) {
         log.info("consuming {}", transferRequested.getClass().getSimpleName());
-        Account senderAccount = accountRepository.load(transferRequested.getAccountId());
-        AccountId senderAccountId = senderAccount.getId();
+        Order senderOrder = orderRepository.load(transferRequested.getAccountId());
+        AccountId senderAccountId = senderOrder.getId();
         AccountId receiverAccountId = transferRequested.getReceiverAccountId();
-        Account receiverAccount = accountRepository.load(receiverAccountId);
+        Order receiverOrder = orderRepository.load(receiverAccountId);
         int amount = transferRequested.getAmount();
 
-        if (amount <= senderAccount.getBalance() &&
-                receiverAccount.getStatus() == OPEN) {
-            receiverAccount.receiveTransfer(senderAccountId, amount);
-            accountRepository.save(receiverAccount);
+        if (amount <= senderOrder.getBalance() &&
+                receiverOrder.getStatus() == OPEN) {
+            receiverOrder.receiveTransfer(senderAccountId, amount);
+            orderRepository.save(receiverOrder);
         } else {
-            senderAccount.refuseTransfer(receiverAccountId, amount);
-            accountRepository.save(senderAccount);
+            senderOrder.refuseTransfer(receiverAccountId, amount);
+            orderRepository.save(senderOrder);
         }
     }
 
     @EventListener
     public void on(TransferReceived transferReceived) {
         log.info("consuming {}", transferReceived.getClass().getSimpleName());
-        Account senderAccount = accountRepository.load(transferReceived.getSenderAccountId());
+        Order senderOrder = orderRepository.load(transferReceived.getSenderAccountId());
         AccountId receiverAccountId = transferReceived.getAccountId();
         int amount = transferReceived.getAmount();
-        senderAccount.sendTransfer(receiverAccountId, amount);
-        accountRepository.save(senderAccount);
+        senderOrder.sendTransfer(receiverAccountId, amount);
+        orderRepository.save(senderOrder);
     }
 
     @EventListener

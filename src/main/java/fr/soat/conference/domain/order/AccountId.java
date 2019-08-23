@@ -1,4 +1,4 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain.order;
 
 import fr.soat.eventsourcing.api.AggregateId;
 import lombok.AllArgsConstructor;

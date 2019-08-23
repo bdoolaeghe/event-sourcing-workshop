@@ -1,8 +1,9 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain;
 
+import fr.soat.conference.domain.order.*;
 import org.junit.Test;
 
-import static fr.soat.banking.domain.AccountStatus.*;
+import static fr.soat.conference.domain.order.OrderStatus.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class AccountTest {
@@ -10,21 +11,21 @@ public class AccountTest {
     @Test
     public void should_succeed_a_classic_scenario() {
         // Given
-        Account account = Account.create();
+        Order order = Order.create();
 
         // When
-        account.open("toto")
+        order.open("toto")
                 .deposit(100)
                 .deposit(100)
                 .withdraw(200)
                 .close();
 
         // Then
-        assertThat(account.getOwner()).isEqualTo("toto");
-        assertThat(account.getBalance()).isEqualTo(0);
-        assertThat(account.getVersion()).isEqualTo(5);
-        assertThat(account.getStatus()).isEqualTo(CLOSED);
-        assertThat(account.getChanges())
+        assertThat(order.getOwner()).isEqualTo("toto");
+        assertThat(order.getBalance()).isEqualTo(0);
+        assertThat(order.getVersion()).isEqualTo(5);
+        assertThat(order.getStatus()).isEqualTo(CLOSED);
+        assertThat(order.getChanges())
                 .extracting(event -> tuple(event.getClass()))
                 .containsExactly(
                         tuple(AccountOpened.class),
@@ -39,61 +40,61 @@ public class AccountTest {
     @Test
     public void should_fail_to_get_negative_balance() {
         // Given
-        Account account = Account.create();
+        Order order = Order.create();
 
         // When
-        assertThatThrownBy(() -> account.open("toto")
+        assertThatThrownBy(() -> order.open("toto")
                 .deposit(100)
                 .withdraw(200))
                 .isInstanceOf(InsufficientFundsException.class)
                 .hasMessage("Withdrawal of 200 can not be applied with balance of 100");
-        assertThat(account.getBalance()).isEqualTo(100);
-        assertThat(account.getVersion()).isEqualTo(2);
+        assertThat(order.getBalance()).isEqualTo(100);
+        assertThat(order.getVersion()).isEqualTo(2);
     }
 
     @Test
     public void should_fail_with_invalid_decisions_on_new_account() {
         // Given
-        Account account = Account.create();
-        assertThat(account.getStatus()).isEqualTo(NEW);
+        Order order = Order.create();
+        assertThat(order.getStatus()).isEqualTo(NEW);
 
         // When
-        assertThatThrownBy(() -> account.withdraw(100))
+        assertThatThrownBy(() -> order.withdraw(100))
                 .isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> account.deposit(100))
+        assertThatThrownBy(() -> order.deposit(100))
                 .isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> account.close())
+        assertThatThrownBy(() -> order.close())
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
     public void should_fail_with_invalid_decisions_on_open_account() {
         // Given
-        Account account = Account.create();
-        account.open("alice");
-        assertThat(account.getStatus()).isEqualTo(OPEN);
+        Order order = Order.create();
+        order.open("alice");
+        assertThat(order.getStatus()).isEqualTo(OPEN);
 
         // When
-        assertThatThrownBy(() -> account.open("bob"))
+        assertThatThrownBy(() -> order.open("bob"))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
     public void should_fail_with_invalid_decisions_on_closed_account() {
         // Given
-        Account account = Account.create();
-        account.open("alice")
+        Order order = Order.create();
+        order.open("alice")
                 .close();
-        assertThat(account.getStatus()).isEqualTo(CLOSED);
+        assertThat(order.getStatus()).isEqualTo(CLOSED);
 
         // When
-        assertThatThrownBy(() -> account.open("bob"))
+        assertThatThrownBy(() -> order.open("bob"))
                 .isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> account.withdraw(100))
+        assertThatThrownBy(() -> order.withdraw(100))
                 .isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> account.deposit(100))
+        assertThatThrownBy(() -> order.deposit(100))
                 .isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> account.close())
+        assertThatThrownBy(() -> order.close())
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 

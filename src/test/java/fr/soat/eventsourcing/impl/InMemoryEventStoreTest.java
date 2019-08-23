@@ -1,7 +1,7 @@
 package fr.soat.eventsourcing.impl;
 
-import fr.soat.banking.application.configuration.BankConfig;
-import fr.soat.banking.domain.*;
+import fr.soat.conference.application.configuration.ConferenceManagementConfig;
+import fr.soat.conference.domain.order.*;
 import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EventConcurrentUpdateException;
 import fr.soat.eventsourcing.api.EventStore;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Lists.newArrayList;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = BankConfig.class)
+@ContextConfiguration(classes = ConferenceManagementConfig.class)
 public class InMemoryEventStoreTest {
 
     @Autowired

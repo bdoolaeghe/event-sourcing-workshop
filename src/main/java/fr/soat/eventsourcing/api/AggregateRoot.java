@@ -1,7 +1,5 @@
 package fr.soat.eventsourcing.api;
 
-import fr.soat.banking.domain.AccountId;
-
 import java.util.ArrayList;
 import java.util.List;
 

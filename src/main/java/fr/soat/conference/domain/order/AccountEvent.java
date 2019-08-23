@@ -1,4 +1,4 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain.order;
 
 import fr.soat.eventsourcing.api.AggregateId;
 import fr.soat.eventsourcing.api.Event;
@@ -17,6 +17,6 @@ public abstract class AccountEvent implements Event {
         return accountId;
     }
 
-    abstract void applyOn(Account account);
+    public abstract void applyOn(Order order);
 
 }

@@ -1,4 +1,4 @@
-package fr.soat.banking.domain;
+package fr.soat.conference.domain.order;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -12,8 +12,8 @@ public class AccountClosed extends AccountEvent {
     }
 
     @Override
-    public void applyOn(Account account) {
-        account.apply(this);
+    public void applyOn(Order order) {
+        order.apply(this);
     }
 
 }

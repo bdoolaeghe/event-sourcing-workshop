@@ -1,4 +1,4 @@
-package fr.soat.conference.domain.order;
+package fr.soat.conference.domain.payment;
 
 import fr.soat.eventsourcing.api.AggregateId;
 import fr.soat.eventsourcing.api.Event;
@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
-@ToString(of = "accountId")
+@ToString(of = "paymentId")
 public abstract class AccountEvent implements Event {
 
     private final AccountId accountId;
@@ -17,6 +17,6 @@ public abstract class AccountEvent implements Event {
         return accountId;
     }
 
-    public abstract void applyOn(Order order);
+    public abstract void applyOn(Account account);
 
 }

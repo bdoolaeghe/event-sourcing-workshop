@@ -27,4 +27,5 @@ public abstract class AggregateRoot<AGGREGATE_ID> {
     public int getVersion() {
         return changes.size();
     }
+
 }

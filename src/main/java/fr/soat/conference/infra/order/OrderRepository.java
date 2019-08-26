@@ -1,8 +1,8 @@
 package fr.soat.conference.infra.order;
 
 import fr.soat.conference.domain.order.Order;
-import fr.soat.conference.domain.order.AccountEvent;
-import fr.soat.conference.domain.order.AccountId;
+import fr.soat.conference.domain.order.OrderEvent;
+import fr.soat.conference.domain.order.OrderId;
 import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EventStore;
 import org.springframework.stereotype.Repository;
@@ -21,22 +21,22 @@ public class OrderRepository {
     }
 
     public void save(Order order) {
-        AccountId aggregateId = order.getId();
+        OrderId aggregateId = order.getId();
         eventStore.store(aggregateId, order.getChanges());
     }
 
-    public Order load(AccountId accountId) {
-        List<AccountEvent> events = asAccountEvents(eventStore.loadEvents(accountId));
-        return hydrate(accountId, events);
+    public Order load(OrderId orderId) {
+        List<OrderEvent> events = asOrderEvents(eventStore.loadEvents(orderId));
+        return hydrate(orderId, events);
     }
 
-    private static Order hydrate(AccountId accountId, List<AccountEvent> events) {
-        Order order = new Order(accountId);
+    private static Order hydrate(OrderId orderId, List<OrderEvent> events) {
+        Order order = new Order(orderId);
         events.forEach(event -> event.applyOn(order));
         return order;
     }
 
-    private List<AccountEvent> asAccountEvents(List<Event> events) {
-        return events.stream().map(event -> (AccountEvent) event).collect(toList());
+    private List<OrderEvent> asOrderEvents(List<Event> events) {
+        return events.stream().map(event -> (OrderEvent) event).collect(toList());
     }
 }

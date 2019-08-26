@@ -1,64 +1,89 @@
 package fr.soat.conference.domain;
 
-import fr.soat.conference.domain.order.AccountId;
+import fr.soat.conference.domain.booking.Conference;
+import fr.soat.conference.domain.booking.SeatBooked;
+import fr.soat.conference.domain.booking.SeatBookingRefused;
 import fr.soat.conference.domain.order.Order;
+import fr.soat.conference.domain.order.OrderCreated;
+import fr.soat.conference.domain.payment.Account;
+import fr.soat.conference.domain.payment.PaymentAccepted;
+import fr.soat.conference.domain.payment.PaymentRefused;
+import fr.soat.conference.infra.booking.ConferenceRepository;
 import fr.soat.conference.infra.order.OrderRepository;
+import fr.soat.conference.infra.payment.AccountRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-
-import static fr.soat.conference.domain.order.OrderStatus.OPEN;
 
 @Service
 @Slf4j
 public class ReservationProcessManager {
 
     private final OrderRepository orderRepository;
+    private final ConferenceRepository conferenceRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public ReservationProcessManager(OrderRepository orderRepository) {
+    public ReservationProcessManager(OrderRepository orderRepository, ConferenceRepository conferenceRepository, AccountRepository accountRepository) {
         this.orderRepository = orderRepository;
+        this.conferenceRepository = conferenceRepository;
+        this.accountRepository = accountRepository;
     }
 
     @EventListener
-    public void on(TransferRequested transferRequested) {
-        log.info("consuming {}", transferRequested.getClass().getSimpleName());
-        Order senderOrder = orderRepository.load(transferRequested.getAccountId());
-        AccountId senderAccountId = senderOrder.getId();
-        AccountId receiverAccountId = transferRequested.getReceiverAccountId();
-        Order receiverOrder = orderRepository.load(receiverAccountId);
-        int amount = transferRequested.getAmount();
+    public void on(OrderCreated orderCreated) {
+        log.info("consuming {}", orderCreated.getClass().getSimpleName());
+        Order order = orderRepository.load(orderCreated.getOrderId());
 
-        if (amount <= senderOrder.getBalance() &&
-                receiverOrder.getStatus() == OPEN) {
-            receiverOrder.receiveTransfer(senderAccountId, amount);
-            orderRepository.save(receiverOrder);
-        } else {
-            senderOrder.refuseTransfer(receiverAccountId, amount);
-            orderRepository.save(senderOrder);
-        }
+        // book a seat
+        Conference conference = conferenceRepository.load(orderCreated.getConferenceName());
+        conference.bookSeat(orderCreated.getOrderId());
+        conferenceRepository.save(conference);
     }
 
     @EventListener
-    public void on(TransferReceived transferReceived) {
-        log.info("consuming {}", transferReceived.getClass().getSimpleName());
-        Order senderOrder = orderRepository.load(transferReceived.getSenderAccountId());
-        AccountId receiverAccountId = transferReceived.getAccountId();
-        int amount = transferReceived.getAmount();
-        senderOrder.sendTransfer(receiverAccountId, amount);
-        orderRepository.save(senderOrder);
+    public void on(SeatBooked seatBooked) {
+        log.info("consuming {}", seatBooked.getClass().getSimpleName());
+        Order order = orderRepository.load(seatBooked.getOrderId());
+        // save seat
+        order.assign(seatBooked.getBookedSeat());
+        orderRepository.save(order);
+
+        // make payment
+        Account account = accountRepository.load(order.getAccountId());
+        Conference conference = conferenceRepository.load(order.getConferenceName());
+        account.requestPayment(conference.getSeatPrice(), order.getId());
+        accountRepository.save(account);
     }
 
     @EventListener
-    public void on(TransferRefused transferRefused) {
-        log.info("consuming {}", transferRefused.getClass().getSimpleName());
-        // nothing to do (final step)
+    public void on(SeatBookingRefused seatBookingRefused) {
+        log.info("consuming {}", seatBookingRefused.getClass().getSimpleName());
+        Order order = orderRepository.load(seatBookingRefused.getOrderId());
+        order.refuseRequest();
     }
 
     @EventListener
-    public void on(TransferSent transferSent) {
-        log.info("consuming {}", transferSent.getClass().getSimpleName());
-        // nothing to do (final step)
+    public void on(PaymentAccepted paymentAccepted) {
+        log.info("consuming {}", paymentAccepted.getClass().getSimpleName());
+        // confirm order
+        Order order = orderRepository.load(paymentAccepted.getOrderId());
+        order.confirmRequest();
+        orderRepository.save(order);
+    }
+
+    @EventListener
+    public void on(PaymentRefused paymentRefused) {
+        log.info("consuming {}", paymentRefused.getClass().getSimpleName());
+        // cancel order
+        Order order = orderRepository.load(paymentRefused.getOrderId());
+        order.refuseRequest();
+        orderRepository.save(order);
+
+        // cancel seat booking
+        Conference conference = conferenceRepository.load(order.getConferenceName());
+        conference.cancelBooking(order.getSeat());
+        conferenceRepository.save(conference);
     }
 }

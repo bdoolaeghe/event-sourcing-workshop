@@ -5,10 +5,10 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
-public class AccountClosed extends AccountEvent {
+public class OrderConfirmed extends OrderEvent {
 
-    public AccountClosed(AccountId accountId) {
-        super(accountId);
+    public OrderConfirmed(OrderId orderId) {
+        super(orderId);
     }
 
     @Override

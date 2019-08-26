@@ -1,19 +1,20 @@
 package fr.soat.conference.domain.order;
 
+import fr.soat.conference.domain.booking.Seat;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
-public class AccountWithdrawn extends AccountEvent {
+@Getter
+public class SeatAssigned extends OrderEvent {
 
-    @Getter
-    private final Integer amount;
+    private final Seat bookedSeat;
 
-    public AccountWithdrawn(AccountId accountId, Integer amount) {
-        super(accountId);
-        this.amount = amount;
+    public SeatAssigned(OrderId orderId, Seat bookedSeat) {
+        super(orderId);
+        this.bookedSeat = bookedSeat;
     }
 
     @Override

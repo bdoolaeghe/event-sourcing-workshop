@@ -1,7 +1,10 @@
 package fr.soat.eventsourcing.impl;
 
 import com.google.common.collect.ArrayListMultimap;
-import fr.soat.eventsourcing.api.*;
+import fr.soat.eventsourcing.api.AggregateId;
+import fr.soat.eventsourcing.api.Event;
+import fr.soat.eventsourcing.api.EventConcurrentUpdateException;
+import fr.soat.eventsourcing.api.EventStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;

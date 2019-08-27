@@ -9,12 +9,12 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString(callSuper = true)
 @Getter
-public class OrderCreated extends OrderEvent {
+public class OrderRequested extends OrderEvent {
 
     private final ConferenceName conferenceName;
     private final AccountId accountId;
 
-    public OrderCreated(OrderId id, ConferenceName conferenceName, AccountId accountForPayment) {
+    public OrderRequested(OrderId id, ConferenceName conferenceName, AccountId accountForPayment) {
         super(id);
         this.conferenceName = conferenceName;
         this.accountId = accountForPayment;

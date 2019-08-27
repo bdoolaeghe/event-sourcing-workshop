@@ -12,11 +12,13 @@ public class PaymentAccepted extends AccountEvent {
 
     private final int amount;
     private final OrderId orderId;
+    private final PaymentReference paymentReference;
 
-    public PaymentAccepted(AccountId id, int amount, OrderId orderId) {
+    public PaymentAccepted(PaymentReference paymentReference, AccountId id, int amount, OrderId orderId) {
         super(id);
         this.amount = amount;
         this.orderId = orderId;
+        this.paymentReference = paymentReference;
     }
 
     @Override

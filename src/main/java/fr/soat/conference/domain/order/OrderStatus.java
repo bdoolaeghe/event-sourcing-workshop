@@ -2,6 +2,8 @@ package fr.soat.conference.domain.order;
 
 public enum OrderStatus {
     NEW,
-    CONFIRMED,
-    REFUSED
+    SEAT_BOOKED,
+    SEAT_BOOKING_FAILED,
+    PAYMENT_REFUSED,
+    PAID
 }

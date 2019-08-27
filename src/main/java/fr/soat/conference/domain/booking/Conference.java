@@ -42,7 +42,7 @@ public class Conference extends AggregateRoot<ConferenceName>  {
     @DecisionFunction
     public Optional<Seat> bookSeat(OrderId orderId) {
         if (availableSeats.isEmpty()) {
-            apply(new SeatBookingRefused(getId(), orderId));
+            apply(new SeatsExhausted(getId(), orderId));
             return Optional.empty();
         } else {
             Seat bookedSeat = availableSeats.get(0);
@@ -58,14 +58,14 @@ public class Conference extends AggregateRoot<ConferenceName>  {
 
 
     @EvolutionFunction
-    public void apply(SeatBooked seatBooked) {
-        this.availableSeats.remove(seatBooked.getBookedSeat());
-        recordChange(seatBooked);
+    public void apply(SeatBooked conferenceseatBooked) {
+        this.availableSeats.remove(conferenceseatBooked.getSeat());
+        recordChange(conferenceseatBooked);
     }
 
     @EvolutionFunction
-    public void apply(SeatBookingRefused seatBookingRefused) {
-        recordChange(seatBookingRefused);
+    public void apply(SeatsExhausted seatsExhausted) {
+        recordChange(seatsExhausted);
     }
 
     @EvolutionFunction

@@ -2,9 +2,9 @@ package fr.soat.conference.domain;
 
 import fr.soat.conference.domain.booking.Conference;
 import fr.soat.conference.domain.booking.SeatBooked;
-import fr.soat.conference.domain.booking.SeatBookingRefused;
+import fr.soat.conference.domain.booking.SeatsExhausted;
 import fr.soat.conference.domain.order.Order;
-import fr.soat.conference.domain.order.OrderCreated;
+import fr.soat.conference.domain.order.OrderRequested;
 import fr.soat.conference.domain.payment.Account;
 import fr.soat.conference.domain.payment.PaymentAccepted;
 import fr.soat.conference.domain.payment.PaymentRefused;
@@ -32,11 +32,11 @@ public class ReservationProcessManager {
     }
 
     @EventListener
-    public void on(OrderCreated orderCreated) {
-        log.info("consuming {}", orderCreated.getClass().getSimpleName());
+    public void on(OrderRequested orderRequested) {
+        log.info("consuming {}", orderRequested.getClass().getSimpleName());
         // book a seat
-        Conference conference = conferenceRepository.load(orderCreated.getConferenceName());
-        conference.bookSeat(orderCreated.getOrderId());
+        Conference conference = conferenceRepository.load(orderRequested.getConferenceName());
+        conference.bookSeat(orderRequested.getOrderId());
         conferenceRepository.save(conference);
     }
 
@@ -45,7 +45,7 @@ public class ReservationProcessManager {
         log.info("consuming {}", seatBooked.getClass().getSimpleName());
         Order order = orderRepository.load(seatBooked.getOrderId());
         // save seat
-        order.assign(seatBooked.getBookedSeat());
+        order.assign(seatBooked.getSeat());
         orderRepository.save(order);
 
         // make payment
@@ -56,10 +56,10 @@ public class ReservationProcessManager {
     }
 
     @EventListener
-    public void on(SeatBookingRefused seatBookingRefused) {
-        log.info("consuming {}", seatBookingRefused.getClass().getSimpleName());
-        Order order = orderRepository.load(seatBookingRefused.getOrderId());
-        order.refuseRequest();
+    public void on(SeatsExhausted seatsExhausted) {
+        log.info("consuming {}", seatsExhausted.getClass().getSimpleName());
+        Order order = orderRepository.load(seatsExhausted.getOrderId());
+        order.failSeatBooking();
         orderRepository.save(order);
     }
 
@@ -68,7 +68,7 @@ public class ReservationProcessManager {
         log.info("consuming {}", paymentAccepted.getClass().getSimpleName());
         // confirm order
         Order order = orderRepository.load(paymentAccepted.getOrderId());
-        order.confirmRequest();
+        order.confirmPayment(paymentAccepted.getPaymentReference());
         orderRepository.save(order);
     }
 
@@ -77,7 +77,7 @@ public class ReservationProcessManager {
         log.info("consuming {}", paymentRefused.getClass().getSimpleName());
         // cancel order
         Order order = orderRepository.load(paymentRefused.getOrderId());
-        order.refuseRequest();
+        order.refusePayment();
         orderRepository.save(order);
 
         // cancel seat booking

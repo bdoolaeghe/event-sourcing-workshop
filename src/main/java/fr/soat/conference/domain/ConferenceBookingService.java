@@ -23,7 +23,7 @@ public class ConferenceBookingService {
     @Command
     public OrderId requestOrder(ConferenceName conferenceName, AccountId accountId) {
         Order order = OrderFactory.create();
-        order.requestSeat(conferenceName, accountId);
+        order.requestBooking(conferenceName, accountId);
         repository.save(order);
         return order.getId();
     }

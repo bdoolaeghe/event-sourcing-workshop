@@ -8,11 +8,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString(callSuper = true)
 @Getter
-public class SeatBookingRefused extends ConferenceEvent {
+public class SeatsExhausted extends ConferenceEvent {
 
     private final OrderId orderId;
 
-    public SeatBookingRefused(ConferenceName id, OrderId orderId) {
+    public SeatsExhausted(ConferenceName id, OrderId orderId) {
         super(id);
         this.orderId = orderId;
     }

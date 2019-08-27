@@ -18,8 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static fr.soat.conference.domain.order.OrderStatus.CONFIRMED;
-import static fr.soat.conference.domain.order.OrderStatus.REFUSED;
+import static fr.soat.conference.domain.order.OrderStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -62,8 +61,9 @@ public class ConferenceBookingServiceTest {
 
         // Then
         Order order = orderRepository.load(orderId);
-        assertThat(order.getStatus()).isEqualTo(CONFIRMED);
+        assertThat(order.getStatus()).isEqualTo(PAID);
         assertThat(order.getSeat().getPlaceNumber()).isEqualTo(1);
+        assertThat(order.getPaymentReference()).matches(reference -> reference.toString().matches(".*-.*-.*-.*-.*"));
 
         myAccount = accountRepository.load(myAccountId);
         assertThat(myAccount.getBalance()).isEqualTo(85);
@@ -88,8 +88,9 @@ public class ConferenceBookingServiceTest {
 
         // Then
         Order order = orderRepository.load(orderId);
-        assertThat(order.getStatus()).isEqualTo(REFUSED);
+        assertThat(order.getStatus()).isEqualTo(PAYMENT_REFUSED);
         assertThat(order.getSeat()).isNull();
+        assertThat(order.getPaymentReference()).isNull();
 
         myAccount = accountRepository.load(myAccountId);
         assertThat(myAccount.getBalance()).isEqualTo(3);
@@ -115,11 +116,14 @@ public class ConferenceBookingServiceTest {
 
         // Then
         Order order1 = orderRepository.load(orderId1);
-        Order order2 = orderRepository.load(orderId2);
-        assertThat(order1.getStatus()).isEqualTo(CONFIRMED);
+        assertThat(order1.getStatus()).isEqualTo(PAID);
         assertThat(order1.getSeat().getPlaceNumber()).isEqualTo(1);
-        assertThat(order2.getStatus()).isEqualTo(REFUSED);
+        assertThat(order1.getPaymentReference()).matches(reference -> reference.toString().matches(".*-.*-.*-.*-.*"));
+
+        Order order2 = orderRepository.load(orderId2);
+        assertThat(order2.getStatus()).isEqualTo(SEAT_BOOKING_FAILED);
         assertThat(order2.getSeat()).isNull();
+        assertThat(order2.getPaymentReference()).isNull();
 
         myAccount = accountRepository.load(myAccountId);
         assertThat(myAccount.getBalance()).isEqualTo(100 - 15);
@@ -130,5 +134,5 @@ public class ConferenceBookingServiceTest {
 
     //TODO test on Account aggregate and Conference
     // Faut il qu'on ait 2 types d'event pour SeatBooked et SeatAssgined ?
-    //TODO : enregister une ref paiement dans l'Order
+
 }

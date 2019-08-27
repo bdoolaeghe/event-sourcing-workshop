@@ -11,12 +11,12 @@ import lombok.ToString;
 public class SeatBooked extends ConferenceEvent {
 
     private final OrderId orderId;
-    private final Seat bookedSeat;
+    private final Seat seat;
 
-    public SeatBooked(ConferenceName id, OrderId orderId, Seat bookedSeat) {
+    public SeatBooked(ConferenceName id, OrderId orderId, Seat seat) {
         super(id);
         this.orderId = orderId;
-        this.bookedSeat = bookedSeat;
+        this.seat = seat;
     }
 
     @Override

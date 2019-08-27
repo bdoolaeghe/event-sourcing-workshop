@@ -25,7 +25,7 @@ public class Account extends AggregateRoot<AccountId>  {
     public Account requestPayment(int amount, OrderId orderId) {
         apply(new PaymentRequested(getId(), amount));
         if (balance >= amount) {
-            apply(new PaymentAccepted(getId(), amount, orderId));
+            apply(new PaymentAccepted(PaymentReference.genereate(), getId(), amount, orderId));
         } else {
             apply(new PaymentRefused(getId(), amount, orderId));
         }

@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
-@ToString(of = "paymentId")
+@ToString(of = "accountId")
 public abstract class AccountEvent implements Event {
 
     private final AccountId accountId;

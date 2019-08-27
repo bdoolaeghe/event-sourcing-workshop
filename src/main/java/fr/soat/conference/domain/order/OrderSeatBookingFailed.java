@@ -5,9 +5,9 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
-public class OrderRefused extends OrderEvent {
+public class OrderSeatBookingFailed extends OrderEvent {
 
-    public OrderRefused(OrderId orderId) {
+    public OrderSeatBookingFailed(OrderId orderId) {
         super(orderId);
     }
 

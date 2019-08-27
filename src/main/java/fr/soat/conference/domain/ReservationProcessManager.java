@@ -34,8 +34,6 @@ public class ReservationProcessManager {
     @EventListener
     public void on(OrderCreated orderCreated) {
         log.info("consuming {}", orderCreated.getClass().getSimpleName());
-        Order order = orderRepository.load(orderCreated.getOrderId());
-
         // book a seat
         Conference conference = conferenceRepository.load(orderCreated.getConferenceName());
         conference.bookSeat(orderCreated.getOrderId());
@@ -62,6 +60,7 @@ public class ReservationProcessManager {
         log.info("consuming {}", seatBookingRefused.getClass().getSimpleName());
         Order order = orderRepository.load(seatBookingRefused.getOrderId());
         order.refuseRequest();
+        orderRepository.save(order);
     }
 
     @EventListener

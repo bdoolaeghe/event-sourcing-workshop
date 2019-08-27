@@ -9,9 +9,9 @@ import lombok.ToString;
 public class Seat {
 
     @Getter
-    private final int idd;
+    private final int placeNumber;
 
-    public Seat(int id) {
-        this.idd = id;
+    public Seat(int placeNumber) {
+        this.placeNumber = placeNumber;
     }
 }

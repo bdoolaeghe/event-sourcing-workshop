@@ -28,4 +28,8 @@ public abstract class AggregateRoot<AGGREGATE_ID> {
         return changes.size();
     }
 
+    @Override
+    public String toString() {
+        return getId().toString();
+    }
 }

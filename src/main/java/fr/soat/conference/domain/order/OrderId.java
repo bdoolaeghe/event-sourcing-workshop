@@ -4,11 +4,9 @@ import fr.soat.eventsourcing.api.AggregateId;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 @AllArgsConstructor
 @EqualsAndHashCode
-@ToString(of = "value")
 public final class OrderId implements AggregateId {
 
     @Getter
@@ -20,5 +18,10 @@ public final class OrderId implements AggregateId {
 
     public static OrderId from(String id) {
         return new OrderId(id);
+    }
+
+    @Override
+    public String toString() {
+        return "orderId=" + getValue();
     }
 }

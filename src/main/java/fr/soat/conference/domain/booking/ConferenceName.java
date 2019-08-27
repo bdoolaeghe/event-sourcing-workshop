@@ -4,11 +4,9 @@ import fr.soat.eventsourcing.api.AggregateId;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 @AllArgsConstructor
 @EqualsAndHashCode
-@ToString(of = "name")
 public final class ConferenceName implements AggregateId {
 
     @Getter
@@ -20,5 +18,10 @@ public final class ConferenceName implements AggregateId {
 
     public static ConferenceName name(String name) {
         return new ConferenceName(name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

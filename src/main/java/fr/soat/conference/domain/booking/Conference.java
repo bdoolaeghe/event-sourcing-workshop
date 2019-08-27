@@ -30,7 +30,7 @@ public class Conference extends AggregateRoot<ConferenceName>  {
     @EvolutionFunction
     public void apply(ConferenceOpened conferenceOpened) {
         this.seats.clear();
-        for (int i = 0; i < conferenceOpened.getPlaces(); i++) {
+        for (int i = 1; i < conferenceOpened.getPlaces() + 1; i++) {
             this.seats.add(new Seat(i));
         }
         this.availableSeats.clear();

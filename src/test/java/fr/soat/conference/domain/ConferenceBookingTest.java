@@ -1,6 +1,6 @@
 package fr.soat.conference.domain;
 
-import fr.soat.conference.application.configuration.ConferenceManagementConfig;
+import fr.soat.conference.application.configuration.ConferenceConfiguration;
 import fr.soat.conference.domain.booking.Conference;
 import fr.soat.conference.domain.booking.ConferenceName;
 import fr.soat.conference.domain.order.Order;
@@ -22,8 +22,8 @@ import static fr.soat.conference.domain.order.OrderStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ConferenceManagementConfig.class)
-public class ConferenceBookingServiceTest {
+@ContextConfiguration(classes = ConferenceConfiguration.class)
+public class ConferenceBookingTest {
 
     @Autowired
     OrderRepository orderRepository;
@@ -35,7 +35,7 @@ public class ConferenceBookingServiceTest {
     ConferenceRepository conferenceRepository;
 
     @Autowired
-    ConferenceBookingService conferenceBookingService;
+    ConferenceCommandHandler conferenceCommandHandler;
 
     @Autowired
     EventStore eventStore;
@@ -57,7 +57,7 @@ public class ConferenceBookingServiceTest {
         conferenceRepository.save(conference);
 
         // When
-        OrderId orderId = conferenceBookingService.requestOrder(conferenceName, myAccountId);
+        OrderId orderId = conferenceCommandHandler.requestOrder(conferenceName, myAccountId);
 
         // Then
         Order order = orderRepository.load(orderId);
@@ -84,7 +84,7 @@ public class ConferenceBookingServiceTest {
         conferenceRepository.save(conference);
 
         // When
-        OrderId orderId = conferenceBookingService.requestOrder(conferenceName, myAccountId);
+        OrderId orderId = conferenceCommandHandler.requestOrder(conferenceName, myAccountId);
 
         // Then
         Order order = orderRepository.load(orderId);
@@ -111,8 +111,8 @@ public class ConferenceBookingServiceTest {
         conferenceRepository.save(conference);
 
         // When
-        OrderId orderId1 = conferenceBookingService.requestOrder(conferenceName, myAccountId);
-        OrderId orderId2 = conferenceBookingService.requestOrder(conferenceName, myAccountId);
+        OrderId orderId1 = conferenceCommandHandler.requestOrder(conferenceName, myAccountId);
+        OrderId orderId2 = conferenceCommandHandler.requestOrder(conferenceName, myAccountId);
 
         // Then
         Order order1 = orderRepository.load(orderId1);

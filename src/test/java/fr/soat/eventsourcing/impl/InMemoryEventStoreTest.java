@@ -1,6 +1,6 @@
 package fr.soat.eventsourcing.impl;
 
-import fr.soat.conference.application.configuration.ConferenceManagementConfig;
+import fr.soat.conference.application.configuration.ConferenceConfiguration;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @Ignore
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ConferenceManagementConfig.class)
+@ContextConfiguration(classes = ConferenceConfiguration.class)
 public class InMemoryEventStoreTest {
 
 //    @Autowired

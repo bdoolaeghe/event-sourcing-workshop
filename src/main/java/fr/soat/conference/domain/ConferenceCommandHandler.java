@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConferenceBookingService {
+public class ConferenceCommandHandler {
 
     private final OrderRepository repository;
 
     @Autowired
-    public ConferenceBookingService(OrderRepository repository) {
+    public ConferenceCommandHandler(OrderRepository repository) {
         this.repository = repository;
     }
 

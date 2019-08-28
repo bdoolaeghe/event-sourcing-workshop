@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan("fr.soat")
-public class ConferenceManagementConfig {
+public class ConferenceConfiguration {
 }

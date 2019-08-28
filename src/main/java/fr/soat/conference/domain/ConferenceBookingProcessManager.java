@@ -18,14 +18,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ReservationProcessManager {
+public class ConferenceBookingProcessManager {
 
     private final OrderRepository orderRepository;
     private final ConferenceRepository conferenceRepository;
     private final AccountRepository accountRepository;
 
     @Autowired
-    public ReservationProcessManager(OrderRepository orderRepository, ConferenceRepository conferenceRepository, AccountRepository accountRepository) {
+    public ConferenceBookingProcessManager(OrderRepository orderRepository, ConferenceRepository conferenceRepository, AccountRepository accountRepository) {
         this.orderRepository = orderRepository;
         this.conferenceRepository = conferenceRepository;
         this.accountRepository = accountRepository;

@@ -132,7 +132,6 @@ public class ConferenceBookingServiceTest {
         assertThat(conference.getAvailableSeats().size()).isEqualTo(0);
     }
 
-    //TODO test on Account aggregate and Conference
-    // Faut il qu'on ait 2 types d'event pour SeatBooked et SeatAssgined ?
+     // Faut il qu'on ait 2 types d'event pour SeatBooked et SeatAssgined ?
 
 }

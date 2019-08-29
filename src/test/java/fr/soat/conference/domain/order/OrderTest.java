@@ -17,7 +17,7 @@ public class OrderTest {
     ConferenceName conferenceName = ConferenceName.name("picasso dans tous ses etats");
     AccountId myAccountId = AccountId.next();
     OrderRepository repository = new OrderRepository(new InMemoryEventStore(new NOOPEventPublisher()));
-    private Seat seatOne = new Seat(1);
+    private Seat seatOne = new Seat(conferenceName, 1);
     private PaymentReference  paymentReference = PaymentReference.genereate();
 
     @Test

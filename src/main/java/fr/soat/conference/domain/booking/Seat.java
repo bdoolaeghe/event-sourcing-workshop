@@ -9,9 +9,12 @@ import lombok.ToString;
 public class Seat {
 
     @Getter
+    private final ConferenceName conference;
+    @Getter
     private final int placeNumber;
 
-    public Seat(int placeNumber) {
+    public Seat(ConferenceName conference, int placeNumber) {
+        this.conference = conference;
         this.placeNumber = placeNumber;
     }
 }

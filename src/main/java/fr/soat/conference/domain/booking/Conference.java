@@ -31,7 +31,7 @@ public class Conference extends AggregateRoot<ConferenceName>  {
     public void apply(ConferenceOpened conferenceOpened) {
         this.seats.clear();
         for (int i = 1; i < conferenceOpened.getPlaces() + 1; i++) {
-            this.seats.add(new Seat(i));
+            this.seats.add(new Seat(getId(), i));
         }
         this.availableSeats.clear();
         this.availableSeats.addAll(seats);

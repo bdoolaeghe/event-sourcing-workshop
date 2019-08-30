@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BankingService {
+public class BankCommandHandler {
 
     private final AccountRepository repository;
 
     @Autowired
-    public BankingService(AccountRepository repository) {
+    public BankCommandHandler(AccountRepository repository) {
         this.repository = repository;
     }
 
@@ -24,6 +24,7 @@ public class BankingService {
         return account.getId();
     }
 
+    @Command
     public Account loadAccount(AccountId id) {
         return repository.load(id);
     }

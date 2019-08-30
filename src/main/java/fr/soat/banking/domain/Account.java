@@ -107,16 +107,17 @@ public class Account extends AggregateRoot<AccountId> {
     /* Transfer management */
 
     @DecisionFunction
-    public Account requestTransfer(AccountId receiverAccountId, int amount) {
+    public Account requestTransfer(Account receiverAccount, int amount) {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not transfer from a " + status + " account");
         }
 
         if (amount <= getBalance()) {
             // transfer authorized
-            apply(new TransferRequested(getId(), receiverAccountId, amount));
+            apply(new TransferRequested(getId(), receiverAccount.getId(), amount));
+            receiverAccount.credit(this, amount);
         } else {
-            apply(new TransferRequestRefused(getId(), receiverAccountId, amount));
+            apply(new TransferRequestRefused(getId(), receiverAccount.getId(), amount));
         }
 
         return this;
@@ -133,11 +134,13 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public void credit(AccountId sourceAccountId, int amount) {
+    public void credit(Account senderAccount, int amount) {
         if (getStatus() == OPEN) {
-            apply(new FundCredited(getId(), sourceAccountId, amount));
+            apply(new FundCredited(getId(), senderAccount.getId(), amount));
+            senderAccount.debit(getId(), amount);
         } else {
-            apply(new CreditRequestRefused(getId(), sourceAccountId, amount));
+            apply(new CreditRequestRefused(getId(), senderAccount.getId(), amount));
+            senderAccount.abortTransferRequest(getId(), amount);
         }
     }
 
@@ -153,8 +156,8 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @DecisionFunction
-    public void abortTransferRequest(AccountId targetAccountId, int amount ) {
-        apply(new TransferRequestAborted(getId(), targetAccountId, amount));
+    public void abortTransferRequest(AccountId receiverAccountId, int amount ) {
+        apply(new TransferRequestAborted(getId(), receiverAccountId, amount));
     }
 
     @EvolutionFunction

@@ -53,7 +53,9 @@ public class BankCommandHandler {
     @Command
     public void requestTransfer(AccountId idFrom, AccountId idTo, int amount) {
         final Account accountFrom = repository.load(idFrom);
-        accountFrom.requestTransfer(idTo, amount);
+        final Account accountTo = repository.load(idTo);
+        accountFrom.requestTransfer(accountTo, amount);
         repository.save(accountFrom);
+        repository.save(accountTo);
     }
 }

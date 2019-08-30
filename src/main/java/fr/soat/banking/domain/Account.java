@@ -117,7 +117,9 @@ public class Account extends AggregateRoot<AccountId> {
             apply(new TransferRequested(getId(), receiverAccount.getId(), amount));
             receiverAccount.credit(this, amount);
         } else {
-            apply(new TransferRequestRefused(getId(), receiverAccount.getId(), amount));
+            //FIXME when funds are insufficient...
+            // apply a TransferRequestRefused evolution on sender account
+            throw new RuntimeException("implement me !");
         }
 
         return this;
@@ -135,13 +137,14 @@ public class Account extends AggregateRoot<AccountId> {
 
     @DecisionFunction
     public void credit(Account senderAccount, int amount) {
-        if (getStatus() == OPEN) {
-            apply(new FundCredited(getId(), senderAccount.getId(), amount));
-            senderAccount.debit(getId(), amount);
-        } else {
-            apply(new CreditRequestRefused(getId(), senderAccount.getId(), amount));
-            senderAccount.abortTransferRequest(getId(), amount);
-        }
+        //FIXME expected implementation:
+        // IF the receiver account is OPEN
+        // 1. apply a FundCredited evolution on receiver account
+        // 2. make debit() decition on sender account
+        // ELSE
+        // 1. apply a CreditRequestRefused evolution on receiver account
+        // 2. make abortTransferRequest() decision on sender account
+        throw new RuntimeException("implement me !");
     }
 
     @EvolutionFunction

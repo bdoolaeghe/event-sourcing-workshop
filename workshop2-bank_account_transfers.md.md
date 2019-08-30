@@ -35,38 +35,55 @@ Then "A" balance is 200
 
 ## Implementation
 
-The `transfer` command needs to orchestrate 2 actions:
-1. remove amount from source account.
-2. add amount to target account. 
+The `requestTransfer` command needs to orchestrate 2 actions:
+1. debit amount from source account.
+2. credit amount to target account. 
 
-As the business logic orchestration is pretty simple, it's (partly) implemented it in the `Account` aggregate *decision functions*:
-* `Account requestTransfer(Account targetAccount, int amount)`
-* `Account receiveTransfer(Account sourceAccount, int amount)`
+The business logic orchestration is pretty simple, and is implemented it in the `Account` aggregate *decision functions*.
+Check how the `requestTransfer()` orchestrate the debit and credit on the sender and receiver account. 
+When an action occurs to roll the aggregate state, we keep an event for it. 
+Note that the business logic is in *decision functions* only. Once again, *evolution functions* only change the state of aggregate.
 
-### Evolution functions
 
-Implement the missing *evolution functions*:
+## Missing implementation
+
+Implement the missing code in `Account` aggregate:
+
+### Fix insufficient funds case
+
+When funds are insufficient for a requested transfer, the transfer request should be refused. 
+Fix `Account.requestTransfer()`: 
 ```
-    @EvolutionFunction
-    void apply(TransferSent event) {
-        //FIXME
+  @DecisionFunction
+    public Account requestTransfer(Account receiverAccount, int amount) {
+        ...
+        if (amount <= getBalance()) {
+            ...
+        } else {
+            //FIXME when funds are insufficient...
+            // apply a TransferRequestRefused evolution on sender account
+            throw new RuntimeException("implement me !");
+        }
         ...
     }
+```
+The test `BankCommandTest.should_fail_transfer_when_funds_are_insufficient()` should then pass green !
 
-    @EvolutionFunction
-    void apply(TransferReceived event) {
-        //FIXME
-        ...
+### Fix the credit() fucntion
+
+When a transfer is requested, the `credit()` decition function is invoked on the receiver account by the sender account.
+Implement this function:
+```
+    @DecisionFunction
+    public void credit(Account senderAccount, int amount) {
+        //FIXME expected implementation:
+        // IF the receiver account is OPEN
+        // 1. apply a FundCredited evolution on receiver account
+        // 2. make debit() decition on sender account
+        // ELSE
+        // 1. apply a CreditRequestRefused evolution on receiver account
+        // 2. make abortTransferRequest() decision on sender account
+        throw new RuntimeException("implement me !");
     }
 ```
-The test `AccountTest.should_succeed_to_transfer()` should then pass green !
-
-### How to manage failures ?
-
-When something wrong is requested (e.g. withraw from a closed account), 
-we decided until now to implement the failure with an exception.
-
-Sometimes, it will be interesting to track record the request failure with an event (for audit, or when the process is a *long process*).
-
-Fix the `requestTransfer()` to raise a `TransferRefused` event when the amount is higher than the balance of source account.
-The test `AccountTest.should_fail_to_transfer_when_funds_are_insuffisent()` should then pass green !
+After that, all the tests should pass green !

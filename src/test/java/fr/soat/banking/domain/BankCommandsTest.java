@@ -22,8 +22,6 @@ public class BankCommandsTest {
     @Autowired
     BankCommandHandler bankCommandHandler;
 
-//    private BankCommandHandler bankCommandHandler = new BankCommandHandler(new AccountRepository(eventStore));
-
     @Test
     public void should_register_a_new_account_then_use_then_close() {
         AccountId accountId = bankCommandHandler.openAccount("toto");

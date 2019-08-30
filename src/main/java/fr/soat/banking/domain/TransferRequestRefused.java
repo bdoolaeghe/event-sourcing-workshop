@@ -6,17 +6,13 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
-public class TransferRefused extends TransferEvent {
+public class TransferRequestRefused extends TransferEvent {
     @Getter
     private final AccountId receiverAccountId;
 
-    public TransferRefused(AccountId accountId, AccountId receiverAccountId, Integer amount) {
+    public TransferRequestRefused(AccountId accountId, AccountId receiverAccountId, Integer amount) {
         super(accountId,  amount);
         this.receiverAccountId = receiverAccountId;
-    }
-    @Override
-    public void applyOn(TransferProcessManager transferProcessManager) {
-        transferProcessManager.on(this);
     }
 
     @Override

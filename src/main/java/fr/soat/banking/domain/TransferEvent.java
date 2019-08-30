@@ -16,5 +16,4 @@ public abstract class TransferEvent extends AccountEvent {
         this.amount = amount;
     }
 
-    public abstract void applyOn(TransferProcessManager transferProcessManager);
 }

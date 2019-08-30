@@ -1,7 +1,6 @@
 package fr.soat.banking.domain;
 
 import fr.soat.banking.application.configuration.BankConfig;
-import fr.soat.eventsourcing.impl.InMemoryEventStore;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +38,8 @@ public class BankCommandsTest {
     }
 
 
+    /* transfer command  */
+
     @Test
     public void should_successfully_transfer() {
         AccountId aliceAccountId = bankCommandHandler.openAccount("alice");
@@ -46,7 +47,7 @@ public class BankCommandsTest {
         AccountId bobAccountId = bankCommandHandler.openAccount("bob");
 
         // When
-        bankCommandHandler.transfer(aliceAccountId, bobAccountId, 50);
+        bankCommandHandler.requestTransfer(aliceAccountId, bobAccountId, 50);
 
         // Then
         Account aliceAccount = bankCommandHandler.loadAccount(aliceAccountId);
@@ -58,14 +59,14 @@ public class BankCommandsTest {
                         tuple(AccountOpened.class),
                         tuple(AccountDeposited.class),
                         tuple(TransferRequested.class),
-                        tuple(TransferSent.class)
+                        tuple(FundDebited.class)
                 );
         assertThat(bobAccount.getBalance()).isEqualTo(50);
         assertThat(bobAccount.getChanges())
                 .extracting(event -> tuple(event.getClass()))
                 .containsExactly(
                         tuple(AccountOpened.class),
-                        tuple(TransferReceived.class)
+                        tuple(FundCredited.class)
                 );
     }
 
@@ -77,7 +78,7 @@ public class BankCommandsTest {
         bankCommandHandler.closeAccount(bobAccountId);
 
         // When
-        bankCommandHandler.transfer(aliceAccountId, bobAccountId, 50);
+        bankCommandHandler.requestTransfer(aliceAccountId, bobAccountId, 50);
 
         // Then
         Account aliceAccount = bankCommandHandler.loadAccount(aliceAccountId);
@@ -89,14 +90,15 @@ public class BankCommandsTest {
                         tuple(AccountOpened.class),
                         tuple(AccountDeposited.class),
                         tuple(TransferRequested.class),
-                        tuple(TransferRefused.class)
+                        tuple(TransferRequestAborted.class)
                 );
         assertThat(bobAccount.getBalance()).isEqualTo(0);
         assertThat(bobAccount.getChanges())
                 .extracting(event -> tuple(event.getClass()))
                 .containsExactly(
                         tuple(AccountOpened.class),
-                        tuple(AccountClosed.class)
+                        tuple(AccountClosed.class),
+                        tuple(CreditRequestRefused.class)
                 );
     }
 
@@ -107,7 +109,7 @@ public class BankCommandsTest {
         AccountId bobAccountId = bankCommandHandler.openAccount("bob");
 
         // When
-        bankCommandHandler.transfer(aliceAccountId, bobAccountId, 250);
+        bankCommandHandler.requestTransfer(aliceAccountId, bobAccountId, 250);
 
         // Then
         Account aliceAccount = bankCommandHandler.loadAccount(aliceAccountId);
@@ -118,8 +120,7 @@ public class BankCommandsTest {
                 .containsExactly(
                         tuple(AccountOpened.class),
                         tuple(AccountDeposited.class),
-                        tuple(TransferRequested.class),
-                        tuple(TransferRefused.class)
+                        tuple(TransferRequestRefused.class)
                 );
         assertThat(bobAccount.getBalance()).isEqualTo(0);
         assertThat(bobAccount.getChanges())

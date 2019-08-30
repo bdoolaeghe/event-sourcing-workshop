@@ -111,23 +111,15 @@ public class Account extends AggregateRoot<AccountId> {
         if (status != OPEN) {
             throw new UnsupportedOperationException("Can not transfer from a " + status + " account");
         }
-        apply(new TransferRequested(getId(), receiverAccountId, amount));
+
+        if (amount <= getBalance()) {
+            // transfer authorized
+            apply(new TransferRequested(getId(), receiverAccountId, amount));
+        } else {
+            apply(new TransferRequestRefused(getId(), receiverAccountId, amount));
+        }
+
         return this;
-    }
-
-    @DecisionFunction
-    public void receiveTransfer(AccountId sourceAccountId, int amount) {
-        apply(new TransferReceived(getId(), sourceAccountId, amount));
-    }
-
-    @DecisionFunction
-    public void refuseTransfer(AccountId targetAccountId, int amount ) {
-        apply(new TransferRefused(getId(), targetAccountId, amount));
-    }
-
-    @DecisionFunction
-    public void sendTransfer(AccountId targetAccountId, int amount ) {
-        apply(new TransferSent(getId(), targetAccountId, amount));
     }
 
     @EvolutionFunction
@@ -136,20 +128,48 @@ public class Account extends AggregateRoot<AccountId> {
     }
 
     @EvolutionFunction
-    void apply(TransferRefused event) {
+    void apply(TransferRequestRefused event) {
         recordChange(event);
     }
 
-    @EvolutionFunction
-    void apply(TransferSent event) {
-        this.balance -= event.getAmount();
-        recordChange(event);
+    @DecisionFunction
+    public void credit(AccountId sourceAccountId, int amount) {
+        if (getStatus() == OPEN) {
+            apply(new FundCredited(getId(), sourceAccountId, amount));
+        } else {
+            apply(new CreditRequestRefused(getId(), sourceAccountId, amount));
+        }
     }
 
     @EvolutionFunction
-    void apply(TransferReceived event) {
+    void apply(FundCredited event) {
         this.balance += event.getAmount();
         recordChange(event);
     }
 
+    @EvolutionFunction
+    public void apply(CreditRequestRefused event) {
+        recordChange(event);
+    }
+
+    @DecisionFunction
+    public void abortTransferRequest(AccountId targetAccountId, int amount ) {
+        apply(new TransferRequestAborted(getId(), targetAccountId, amount));
+    }
+
+    @EvolutionFunction
+    public void apply(TransferRequestAborted transferRequestAborted) {
+        recordChange(transferRequestAborted);
+    }
+
+    @DecisionFunction
+    public void debit(AccountId receiverAccountId, Integer amount) {
+        apply(new FundDebited(getId(), receiverAccountId, amount));
+    }
+
+    @EvolutionFunction
+    public void apply(FundDebited event) {
+        this.balance -= event.getAmount();
+        recordChange(event);
+    }
 }

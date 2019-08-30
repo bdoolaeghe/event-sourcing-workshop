@@ -2,11 +2,11 @@ package fr.soat.banking.domain;
 
 import fr.soat.eventsourcing.api.Command;
 
-public class BankingService {
+public class BankCommandHandler {
 
     private AccountRepository repository;
 
-    public BankingService(AccountRepository repository) {
+    public BankCommandHandler(AccountRepository repository) {
         this.repository = repository;
     }
 
@@ -20,6 +20,7 @@ public class BankingService {
         return account.getId();
     }
 
+    @Command
     public Account loadAccount(AccountId id) {
         return repository.load(id);
     }

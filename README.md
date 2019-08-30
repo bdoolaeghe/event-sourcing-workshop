@@ -11,5 +11,9 @@ An initiation workshop about [Event Sourcing](https://martinfowler.com/eaaDev/Ev
 
 ## Training
 * [workshop 1: simple bank account application based on ES architecture](../workshop1/workshop1-bank_account.md) 
+* [workshop 2: bank account transfer](../workshop2/workshop2-bank_account_transfer.md) 
+* [workshop 3: bank account transfer with process manager](../workshop3/workshop3-bank_account_transfder_with_process_manager.md) 
+* [workshop 4: conference booking with process manager](../workshop4/workshop4-conference_booking.md) 
+* [workshop 5: conference booking and projections (ES & CQRS)](../workshop5/workshop5-projections.md) 
 
 

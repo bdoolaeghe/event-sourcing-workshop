@@ -1,72 +1,37 @@
-Event-sourcing and aggregate messages
-=====================================
+Event-sourcing and Process Manager
+==================================
 
-*Goal: Understand how aggregates can communicate together in a simple business process.*
+*Goal: Understand the Process Manager*
       
-## Transfer from an account to another
-We are going to implement the *Transfer* feature. The *Transfer* process implies a *sender account* and a *receiver account*. 
-The given *amount* should be deduced from *sender account* and added to the *receiver account* 
-### Succeeding transfer
-```gherkin
-Given a sender account "A" and a receiver account "B"
-And "A" has a balance of 200
-And "B" has a balance of 0
-When I transfer 50 from "A" to "B"
-Then "A" balance is 150
-Then "B" balance is 50
-```
-### Transfer with insufficient funds
-```gherkin
-Given a sender account "A" and a receiver account "B"
-And "A" has a balance of 10
-And "B" has a balance of 0
-When I transfer 50 from "A" to "B"
-Then "A" balance is 10
-Then "B" balance is 0
-```
-### Transfer to a closed account
-```gherkin
-Given a sender account "A" and a receiver account "B"
-And "A" has a balance of 200
-And "B" is closed
-When I transfer 50 from "A" to "B"
-Then "A" balance is 200
-```
+## Process Manager
+Sometimes, a business process can be much more complicated thant a fund transfer between 2 accounts:
+* when it implies a lots of different actors (aggregates).
+* when the process is long and composed of many steps (it implies many successive commands and evolutions)
+* when you don't want to create coupling between aggregates;
+ 
+For these reasons, you may want to delegate a process orchestration to a dedicated actor : a **Process Manager**.
+Its role is to:
+* define the **process orchestration** (translate a raised event into a decision function call on an aggregate).
+* route the different messages between implied aggregates.
+* **not** to perform any business logic.
 
-## Implementation
+      
+## Transfer Process Manager
 
-The `transfer` command needs to orchestrate 2 actions:
-1. remove amount from source account.
-2. add amount to target account. 
+In the previous workshop3, we implemented the account transfer process onto the `Account` aggregate.
+Let's train with a *Transfer Process Manager*. The goal of this workshop is to refactor the previous solution, introducing a `TransferProcessManager`.
 
-As the business logic orchestration is pretty simple, it's (partly) implemented it in the `Account` aggregate *decision functions*:
-* `Account requestTransfer(Account targetAccount, int amount)`
-* `Account receiveTransfer(Account sourceAccount, int amount)`
+The `TransferProcessManager` is a spring `EventListener` implementing callbacks on events occurring on the sender and receiver account.
 
-### Evolution functions
-
-Implement the missing *evolution functions*:
-```
-    @EvolutionFunction
-    void apply(TransferSent event) {
-        //FIXME
+Complete its implementation:
+ 
+ ``` 
+     @EventListener
+     public void on(FundCredited fundCredited) {
         ...
-    }
-
-    @EvolutionFunction
-    void apply(TransferReceived event) {
-        //FIXME
-        ...
-    }
+     }
 ```
-The test `AccountTest.should_succeed_to_transfer()` should then pass green !
+ 
+`BankCommandsTests.should_successfully_transfer()` should then pass green !
 
-### How to manage failures ?
 
-When something wrong is requested (e.g. withraw from a closed account), 
-we decided until now to implement the failure with an exception.
-
-Sometimes, it will be interesting to track record the request failure with an event (for audit, or when the process is a *long process*).
-
-Fix the `requestTransfer()` to raise a `TransferRefused` event when the amount is higher than the balance of source account.
-The test `AccountTest.should_fail_to_transfer_when_funds_are_insuffisent()` should then pass green !

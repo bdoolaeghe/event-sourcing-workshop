@@ -7,7 +7,9 @@ Event-sourcing : conference booking
 
 The business we are to implement is a conference booking system. 
 When the customer orders a seat booking for a conference, he should pay the conference price and receive a seat booking number.
+
 Check out the following scenario:
+
 _**Scenario:** successfully book a seat for a conference_
 ```gherkin
 Given I am a customer

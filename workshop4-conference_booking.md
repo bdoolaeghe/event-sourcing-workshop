@@ -7,7 +7,9 @@ Event-sourcing : conference booking
 
 The business we are to implement is a conference booking system. 
 When the customer orders a seat booking for a conference, he should pay the conference price and receive a seat booking number.
+
 Check out the following scenario:
+
 _**Scenario:** successfully book a seat for a conference_
 ```gherkin
 Given I am a customer
@@ -67,10 +69,10 @@ Implement the missing decision/evolutions function of the entity.
 #### `Order` 
  
 An `Order` represent the order passed by a customer, for a given conference. It has the following properties: 
- ** the name of the target conference
- ** the booked seat number
- ** the account Id of the customer
- ** the reference of payment. 
+ * the name of the target conference
+ * the booked seat number
+ * the account Id of the customer
+ * the reference of payment. 
 
 It's also an event sourced entity, with the following states and business events:
 ![Order workflow](order_workflow.png)

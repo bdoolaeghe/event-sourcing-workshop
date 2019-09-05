@@ -3,7 +3,7 @@ Event-sourcing : conference booking
 
 *Goal: implement an event sourced complex business process (conference booking system)*
 
-## Understand the business
+## Understand the business
 
 The business we are to implement is a conference booking system. 
 When the customer orders a seat booking for a conference, he should pay the conference price and receive a seat booking number.

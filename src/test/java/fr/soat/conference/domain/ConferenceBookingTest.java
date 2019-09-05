@@ -132,6 +132,4 @@ public class ConferenceBookingTest {
         assertThat(conference.getAvailableSeats().size()).isEqualTo(0);
     }
 
-     // Faut il qu'on ait 2 types d'event pour SeatBooked et SeatAssgined ?
-
 }

@@ -16,11 +16,16 @@ To illustrate this, let's build the following "projection" in the previous confe
 We would like to export some real time statistics about the open conferences:
 * the **booking ratio** for each conference (booked seats / total seats)
 * the **total incomes** by conference (sum of booked seats x price)  
+
 |      conference name                     | booking ratio | total incomes |
 |:-----------------------------------------|---------------|--------------:|
 | why tests ares not an option             |      33%      |      110E     |    
 | become master of the world in 10 lessons |      78%      |      2170E    |
 | ...                                      |      12%      |      730E     |
+
+| toto | tata |
+|------|------|
+|  1   |   2  |
 
 ## Implementation
 

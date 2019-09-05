@@ -65,7 +65,7 @@ On the read side, check out the `showStatistics` command of the `ConferenceComma
 ### Booking raiio
 
 Now, let's add the *booking ratio* in the statistics !
-* add some event handlers in the `StatisticsUpdateManager` to catch any seat booking event, end store the seat booking number with the `StatisticsRepository` ()
-* add in the `showStatistics` command the read and computation of book ratio in the statistics report !
+* add some event handlers in the `StatisticsUpdateManager` to catch any seat booking event, end store the seat booking number with the `StatisticsRepository`.
+* add in the `showStatistics` command the read and computation of book ratio in the statistics report.
 
 After that, `ConferenceBookingStatisticsTest` should pass green !

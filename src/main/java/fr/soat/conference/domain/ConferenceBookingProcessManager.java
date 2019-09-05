@@ -2,7 +2,7 @@ package fr.soat.conference.domain;
 
 import fr.soat.conference.domain.booking.Conference;
 import fr.soat.conference.domain.booking.SeatBooked;
-import fr.soat.conference.domain.booking.SeatsExhausted;
+import fr.soat.conference.domain.booking.SeatBookingRequestRefused;
 import fr.soat.conference.domain.order.Order;
 import fr.soat.conference.domain.order.OrderRequested;
 import fr.soat.conference.domain.payment.Account;
@@ -56,9 +56,9 @@ public class ConferenceBookingProcessManager {
     }
 
     @EventListener
-    public void on(SeatsExhausted seatsExhausted) {
-        log.info("consuming {}", seatsExhausted.getClass().getSimpleName());
-        Order order = orderRepository.load(seatsExhausted.getOrderId());
+    public void on(SeatBookingRequestRefused seatBookingRequestRefused) {
+        log.info("consuming {}", seatBookingRequestRefused.getClass().getSimpleName());
+        Order order = orderRepository.load(seatBookingRequestRefused.getOrderId());
         order.failSeatBooking();
         orderRepository.save(order);
     }

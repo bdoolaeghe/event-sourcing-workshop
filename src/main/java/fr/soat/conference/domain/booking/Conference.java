@@ -10,15 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static fr.soat.conference.domain.booking.ConferenceStatus.*;
+
 @Getter
 public class Conference extends AggregateRoot<ConferenceName>  {
 
     private final List<Seat> seats = new ArrayList<>();
     private final List<Seat> availableSeats = new ArrayList<>();
     private int seatPrice;
+    private ConferenceStatus status;
 
     public Conference(ConferenceName conferenceName) {
         super(conferenceName);
+        this.status = NEW;
     }
 
     @DecisionFunction
@@ -29,6 +33,7 @@ public class Conference extends AggregateRoot<ConferenceName>  {
 
     @EvolutionFunction
     public void apply(ConferenceOpened conferenceOpened) {
+        this.status = OPEN;
         this.seats.clear();
         for (int i = 1; i < conferenceOpened.getPlaces() + 1; i++) {
             this.seats.add(new Seat(i));
@@ -41,8 +46,8 @@ public class Conference extends AggregateRoot<ConferenceName>  {
 
     @DecisionFunction
     public Optional<Seat> bookSeat(OrderId orderId) {
-        if (availableSeats.isEmpty()) {
-            apply(new SeatsExhausted(getId(), orderId));
+        if (status == FULL) {
+            apply(new SeatBookingRequestRefused(getId(), orderId));
             return Optional.empty();
         } else {
             Seat bookedSeat = availableSeats.get(0);
@@ -56,20 +61,23 @@ public class Conference extends AggregateRoot<ConferenceName>  {
         apply(new SeatReleased(getId(), seat));
     }
 
-
     @EvolutionFunction
-    public void apply(SeatBooked conferenceseatBooked) {
-        this.availableSeats.remove(conferenceseatBooked.getSeat());
-        recordChange(conferenceseatBooked);
+    public void apply(SeatBooked conferenceSeatBooked) {
+        this.availableSeats.remove(conferenceSeatBooked.getSeat());
+        if (availableSeats.isEmpty()) {
+            status = FULL;
+        }
+        recordChange(conferenceSeatBooked);
     }
 
     @EvolutionFunction
-    public void apply(SeatsExhausted seatsExhausted) {
-        recordChange(seatsExhausted);
+    public void apply(SeatBookingRequestRefused seatBookingRequestRefused) {
+        recordChange(seatBookingRequestRefused);
     }
 
     @EvolutionFunction
     public void apply(SeatReleased seatReleased) {
+        this.status = OPEN;
         this.availableSeats.add(seatReleased.getSeat());
         recordChange(seatReleased);
     }
@@ -77,9 +85,9 @@ public class Conference extends AggregateRoot<ConferenceName>  {
     @Override
     public String toString() {
         return "room " + this.getId().getName() +
-                " (" +
+                ": " +
                 availableSeats.size() + " / " + seats.size() + " available seats" +
-                ")";
+                " (" + status + ")";
     }
 
 }

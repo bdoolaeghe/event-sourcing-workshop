@@ -23,10 +23,6 @@ We would like to export some real time statistics about the open conferences:
 | become master of the world in 10 lessons |      78%      |      2170E    |
 | ...                                      |      12%      |      730E     |
 
-| toto | tata |
-|------|------|
-|  1   |   2  |
-
 ## Implementation
 
 The projection of these data will be stored in an "in mermory" key/value storage, 

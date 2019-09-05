@@ -47,7 +47,7 @@ As you can see `StatisticsUpdateManager` is an event handler, subscribing to `Pa
 ```
 When a payment occurs, the statistics *total incomes* is updated with the new payment. 
 
-On the read side, check out the `showStatistics` of the `ConferenceCommandHandler`:
+On the read side, check out the `showStatistics` command of the `ConferenceCommandHandler`:
 
 ```
     @Command

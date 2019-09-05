@@ -27,6 +27,7 @@ public class ConferenceTest {
         repository.save(picasso);
         Conference reloadedPicasso = repository.load(picasso.getId());
         assertThat(picasso.getAvailableSeats()).containsExactly(seat2);
+        assertThat(picasso.getSeatPrice()).isEqualTo(10);
         assertThat(picasso.getStatus()).isEqualTo(ConferenceStatus.OPEN);
     }
 

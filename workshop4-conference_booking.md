@@ -69,10 +69,10 @@ Implement the missing decision/evolutions function of the entity.
 #### `Order` 
  
 An `Order` represent the order passed by a customer, for a given conference. It has the following properties: 
- ** the name of the target conference
- ** the booked seat number
- ** the account Id of the customer
- ** the reference of payment. 
+ * the name of the target conference
+ * the booked seat number
+ * the account Id of the customer
+ * the reference of payment. 
 
 It's also an event sourced entity, with the following states and business events:
 ![Order workflow](order_workflow.png)

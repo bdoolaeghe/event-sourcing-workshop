@@ -7,6 +7,7 @@ import fr.soat.eventsourcing.impl.NOOPEventPublisher;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class AccountTest {
 
@@ -25,6 +26,12 @@ public class AccountTest {
 
         myAccount = repository.load(myAccountId);
         assertThat(myAccount.getBalance()).isEqualTo(110);
+        assertThat(myAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountCredited.class),
+                        tuple(AccountCredited.class)
+                );
     }
 
     @Test
@@ -37,6 +44,13 @@ public class AccountTest {
 
         myAccount = repository.load(myAccountId);
         assertThat(myAccount.getBalance()).isEqualTo(90);
+        assertThat(myAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountCredited.class),
+                        tuple(PaymentRequested.class),
+                        tuple(PaymentAccepted.class)
+                );
     }
 
     @Test
@@ -49,6 +63,13 @@ public class AccountTest {
 
         myAccount = repository.load(myAccountId);
         assertThat(myAccount.getBalance()).isEqualTo(100);
+        assertThat(myAccount.getChanges())
+                .extracting(event -> tuple(event.getClass()))
+                .containsExactly(
+                        tuple(AccountCredited.class),
+                        tuple(PaymentRequested.class),
+                        tuple(PaymentRefused.class)
+                );
     }
 
 

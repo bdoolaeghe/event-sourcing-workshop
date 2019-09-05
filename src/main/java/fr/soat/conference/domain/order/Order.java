@@ -38,59 +38,75 @@ public class Order extends AggregateRoot<OrderId> {
 
     @EvolutionFunction
     void apply(OrderRequested orderRequested) {
-        this.accountId = orderRequested.getAccountId();
-        this.conferenceName = orderRequested.getConferenceName();
-        recordChange(orderRequested);
+        //FIXME
+        // should init the state of order (accountId, conferenceName)
+        throw new RuntimeException("implement me !");
     }
 
     @DecisionFunction
     public Order assign(Seat bookedSeat) {
-        apply(new OrderSeatBooked(getId(), bookedSeat));
-        return this;
+        //FIXME
+        //  expected output event is:
+        // - OrderSeatBooked
+        throw new RuntimeException("implement me !");
     }
 
     @EvolutionFunction
     public void apply(OrderSeatBooked orderSeatBooked) {
-        this.status = SEAT_BOOKED;
-        this.seat = orderSeatBooked.getBookedSeat();
-        recordChange(orderSeatBooked);
+        //FIXME
+        // should update state (order status and assigned seat)
+        throw new RuntimeException("implement me !");
     }
 
     @DecisionFunction
     public void failSeatBooking() {
-        apply(new OrderSeatBookingFailed(getId()));
+        //FIXME
+        //  expected output event is:
+        // - OrderSeatBookingFailed
+        throw new RuntimeException("implement me !");
     }
 
     @EvolutionFunction
     void apply(OrderSeatBookingFailed orderSeatBookingFailed) {
-        this.status = SEAT_BOOKING_FAILED;
-        this.seat = null;
-        recordChange(orderSeatBookingFailed);
+        //FIXME
+        // should update state:
+        // - order status
+        // - (no) assigned seat
+        throw new RuntimeException("implement me !");
     }
 
     @DecisionFunction
     public void confirmPayment(PaymentReference paymentReference) {
-        apply(new OrderPaid(getId(), paymentReference));
+        //FIXME
+        //  expected output event is:
+        // - OrderPaid
+        throw new RuntimeException("implement me !");
     }
 
     @EvolutionFunction
     void apply(OrderPaid orderPaid) {
-        this.status = PAID;
-        this.paymentReference = orderPaid.getPaymentReference();
-        recordChange(orderPaid);
+        //FIXME
+        // should update state:
+        // - order status
+        // - the payment reference
+        throw new RuntimeException("implement me !");
     }
 
     @DecisionFunction
     public void refusePayment() {
-        apply(new OrderPaymentRefused(getId()));
+        //FIXME
+        //  expected output event is:
+        // - OrderPaymentRefused
     }
 
     @EvolutionFunction
     void apply(OrderPaymentRefused orderPaymentRefused) {
-        this.status = PAYMENT_REFUSED;
-        this.paymentReference = null;
-        this.seat = null;
-        recordChange(orderPaymentRefused);
+        //FIXME
+        // should update state:
+        // - order status
+        // - (no) payment reference
+        // - but also the fact the is NO more assigned seat !
+        throw new RuntimeException("implement me !");
     }
 
 }

@@ -7,8 +7,8 @@ Event-sourcing and projections
 
 The 2 architectural patterns work fine together ! 
 As the source of truth is the event store, which can be considered as the "write model",
-it's very easy to subscribe to any kind of business event to build another "read model", a *projection* of the data data, as we could do in CQRS... 
-This *projection can then be stored in any other kind of data storage system (RDMS, noSQL DB, Kafka topic...)
+it's very easy to subscribe to any kind of business event to build a *projection* of the data (indeed another "read model"), as we could do in CQRS... 
+This *projection* can then be stored in any other kind of data storage system (RDMS, noSQL DB, Kafka, whatever...)
 
 # Real time statistics on conferences
  

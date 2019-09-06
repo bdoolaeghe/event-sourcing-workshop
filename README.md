@@ -13,7 +13,10 @@ An initiation workshop about [Event Sourcing](https://martinfowler.com/eaaDev/Ev
 ## Technical prerequisites 
 To train with this workshop, you'll need:
 * notion in an object oriented language (java)
-* basics of [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
+
+This training also make usage of the following technologies, but there is no absolute need to be aware of them:
+* Apache [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
+* [Spring framework](https://spring.io/)
 
 ## Training
 * [workshop 1: simple bank account application based on ES architecture](../workshop1/workshop1-bank_account.md) 

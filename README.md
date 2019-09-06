@@ -8,7 +8,7 @@ An initiation workshop about [Event Sourcing](https://martinfowler.com/eaaDev/Ev
 * Each workshop has a solution branch (e.g. [solution/workshop1](../solution/workshop1) for solution of [workshop1](../workshop1))
 * Before checking out the next workshop branch, you can save your work by locally committing your solution.
 * Have a look to the [How To / FAQ](HOWTO.md)
-* Check out the [technical prerequisites](#technical_prerequisites) !
+* Check out the [technical prerequisites](#technical-prerequisites) !
 
 ## Technical prerequisites 
 To train with this workshop, you'll need:

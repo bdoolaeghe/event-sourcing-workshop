@@ -1,5 +1,7 @@
 package kafka;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -32,14 +34,20 @@ public class Producer {
 //        }
     }
 
-    public <MESSAGE_TYPE> void publish(MESSAGE_TYPE message, Class<MESSAGE_TYPE> messageClass) {
-        ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, 0, messageClass.toString(), toJson(message));
+    public <EVENT_TYPE> void publish(EVENT_TYPE event, Class<EVENT_TYPE> eventClass) {
+        ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, 0, eventClass.getName(), toJson(event));
         producer.send(data);
+        System.out.println("Sent: " + data);
     }
 
-    private <MESSAGE_TYPE> String toJson(MESSAGE_TYPE message) {
+    final GsonBuilder builder = new GsonBuilder();
+    final Gson gson = builder.create();
+
+    private <EVENT_TYPE> String toJson(EVENT_TYPE event) {
         //FIXME gson
-        return message.toString();
+//        return message.toString();
+        String json = gson.toJson(event);
+        return json;
     }
 
     public void close() {

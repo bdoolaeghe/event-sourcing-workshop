@@ -1,37 +1,52 @@
 import kafka.Consumer;
 import kafka.Producer;
+import lombok.Getter;
+import lombok.ToString;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
-//@ContextConfiguration //(classes = MainTestConfig.class)
+@ContextConfiguration(classes = MainTestConfig.class)
 public class MainTest {
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private BlopListener blopListener;
+
     @Test
-    public void doit() throws InterruptedException {
-        Producer producer = new Producer("blop");
-        Consumer consumer = new Consumer(applicationEventPublisher, "blop");
-        consumer.start();
+    public void should_produce_then_consume() throws InterruptedException {
+        // publish on kafka
+        String topic = "blop";
+        Producer producer = new Producer(topic);
         producer.open();
-        producer.publish("blop !", String.class);
+        producer.publish(new BlopEvent("blop !"), BlopEvent.class);
         producer.close();
-        consumer.stop();
+
+        // Then consume
+        Consumer consumer = new Consumer(applicationEventPublisher, topic);
+        CompletableFuture.runAsync(() -> {
+            consumer.start();
+        });
+
+        // then
         TimeUnit.SECONDS.sleep(5);
+        consumer.stop();
+        Assertions.assertThat(blopListener.getReceived().getBlop()).isEqualTo("blop !");
     }
 
-    @EventListener
-    public void on(String msg) {
-        System.out.println("received messge from kafka: " + msg);
-    }
+
+
 
 }

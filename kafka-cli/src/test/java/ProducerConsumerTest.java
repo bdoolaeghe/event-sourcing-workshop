@@ -1,14 +1,10 @@
 import kafka.Consumer;
 import kafka.Producer;
-import lombok.Getter;
-import lombok.ToString;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -17,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = MainTestConfig.class)
-public class MainTest {
+public class ProducerConsumerTest {
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;

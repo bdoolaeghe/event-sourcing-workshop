@@ -67,16 +67,22 @@ public class ConferenceBookingStatisticsTest {
         Conference conferenceMonde = new Conference(conferenceMondeName).open(10, 7);
         conferenceRepository.save(conferenceMonde);
 
+        ConferenceName conferenceAquaPoneyName = ConferenceName.name("Pratiquer l'aqua-poney à la maison");
+        Conference conferenceAquaPoney = new Conference(conferenceAquaPoneyName).open(20, 200);
+        conferenceRepository.save(conferenceAquaPoney);
+
         // When
         conferenceCommandHandler.requestOrder(conferenceStrategyName, myAccountId);
         conferenceCommandHandler.requestOrder(conferenceMondeName, myAccountId);
         conferenceCommandHandler.requestOrder(conferenceMondeName, yourAccountId);
+        conferenceCommandHandler.requestOrder(conferenceAquaPoneyName, yourAccountId);
 
         // Then
         String output = execute(conferenceCommandHandler::getStatistics);
         assertThat(output).isEqualTo("conferece;booking_rate;incomes\n" +
                 "La stratégie de l'echec;10%;5\n" +
-                "10 astuces pour devenir maitre du monde. La 4ème va vous étonner ;20%;14\n");
+                "10 astuces pour devenir maitre du monde. La 4ème va vous étonner ;20%;14\n" +
+                "Pratiquer l'aqua-poney à la maison;0%;0\n");
     }
 
     private String execute(Consumer<PrintStream> func) throws UnsupportedEncodingException {

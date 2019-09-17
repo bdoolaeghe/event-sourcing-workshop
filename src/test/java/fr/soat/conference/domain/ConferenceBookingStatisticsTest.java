@@ -63,7 +63,7 @@ public class ConferenceBookingStatisticsTest {
         Conference conferenceStrategy = new Conference(conferenceStrategyName).open(10, 5);
         conferenceRepository.save(conferenceStrategy);
 
-        ConferenceName conferenceMondeName = ConferenceName.name("10 astuces pour devenir maitre du monde. La 4ème va vous étonner ");
+        ConferenceName conferenceMondeName = ConferenceName.name("10 astuces pour devenir maitre du monde. La 4ème va vous étonner");
         Conference conferenceMonde = new Conference(conferenceMondeName).open(10, 7);
         conferenceRepository.save(conferenceMonde);
 
@@ -81,7 +81,7 @@ public class ConferenceBookingStatisticsTest {
         String output = execute(conferenceCommandHandler::getStatistics);
         assertThat(output).isEqualTo("conferece;booking_rate;incomes\n" +
                 "La stratégie de l'echec;10%;5\n" +
-                "10 astuces pour devenir maitre du monde. La 4ème va vous étonner ;20%;14\n" +
+                "10 astuces pour devenir maitre du monde. La 4ème va vous étonner;20%;14\n" +
                 "Pratiquer l'aqua-poney à la maison;0%;0\n");
     }
 

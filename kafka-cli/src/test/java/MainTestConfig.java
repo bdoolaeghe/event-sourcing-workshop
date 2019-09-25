@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 public class MainTestConfig {
 
     @Bean
-    public BlopListener blopListener() {
-        return new BlopListener();
+    public BlopEventListener blopListener() {
+        return new BlopEventListener();
     }
 
 }

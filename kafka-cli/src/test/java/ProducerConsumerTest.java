@@ -1,4 +1,4 @@
-import kafka.Consumer;
+import kafka.AtLeastOnceConsumer;
 import kafka.Producer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -19,19 +19,20 @@ public class ProducerConsumerTest {
     ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    private BlopListener blopListener;
+    private BlopEventListener blopEventListener;
 
     @Test
     public void should_produce_then_consume() throws InterruptedException {
-        // publish on kafka
-        String topic = "blop";
-        Producer producer = new Producer(topic);
+        String blopTopic = "blop";
+
+        // publish
+        Producer producer = new Producer(blopTopic);
         producer.open();
-        producer.publish(new BlopEvent("blop !"), BlopEvent.class);
+        producer.publish(new BlopEvent("a blop happened !"), BlopEvent.class);
         producer.close();
 
         // Then consume
-        Consumer consumer = new Consumer(applicationEventPublisher, topic);
+        AtLeastOnceConsumer consumer = new AtLeastOnceConsumer(applicationEventPublisher, blopTopic);
         CompletableFuture.runAsync(() -> {
             consumer.start();
         });
@@ -39,7 +40,8 @@ public class ProducerConsumerTest {
         // then
         TimeUnit.SECONDS.sleep(5);
         consumer.stop();
-        Assertions.assertThat(blopListener.getReceived().getBlop()).isEqualTo("blop !");
+
+        Assertions.assertThat(blopEventListener.getReceived().getBlop()).isEqualTo("a blop happened !");
     }
 
 

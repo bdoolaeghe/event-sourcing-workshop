@@ -1,14 +1,16 @@
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 
-public class BlopListener {
+@Slf4j
+public class BlopEventListener {
 
     @Getter
     private volatile BlopEvent received;
 
     @EventListener
     public void on(BlopEvent blopEvent) {
-        System.out.println("received messge from kafka: " + blopEvent);
+        log.info("received message from kafka: " + blopEvent);
         this.received = blopEvent;
     }
 }

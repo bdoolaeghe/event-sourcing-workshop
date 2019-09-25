@@ -13,13 +13,13 @@ import java.util.Arrays;
 import java.util.Properties;
 
 @Slf4j
-public class Consumer {
+public class AtLeastOnceConsumer {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final String[] topics;
     private volatile boolean running;
 
-    public Consumer(ApplicationEventPublisher applicationEventPublisher, String... topics) {
+    public AtLeastOnceConsumer(ApplicationEventPublisher applicationEventPublisher, String... topics) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.topics = topics;
     }
@@ -39,16 +39,16 @@ public class Consumer {
             ConsumerRecords<String, String> recs = consumer.poll(10);
             if (recs.count() == 0) {
                 if (count % 100 == 0)
-                    System.out.println("waiting for message...");
+                    log.debug("waiting for message...");
             } else {
-                System.out.println("messageS received...");
+                log.debug("messageS received...");
                 for (ConsumerRecord<String, String> rec : recs) {
                     try {
                         Object message = fromJson(rec.key(), rec.value());
-                        System.out.println("received: " + message);
+                        log.debug("received: " + message);
                         applicationEventPublisher.publishEvent(message);
                     } catch (Exception e) {
-                        System.err.println("Failure. Discarding event: " + rec.value());
+                        log.warn("Failure. Discarding event: " + rec.value(), e);
                     } finally {
                         consumer.commitSync();
                     }
@@ -74,4 +74,14 @@ public class Consumer {
         running = false;
     }
 
+
+//    public static void main(String[] args) {
+//        AtLeastOnceConsumer consumer = new AtLeastOnceConsumer(new ApplicationEventPublisher() {
+//            @Override
+//            public void publishEvent(Object o) {
+//                System.out.println("Kafka message received: " + o);
+//            }
+//        }, "blop");
+//        consumer.start();
+//    }
 }

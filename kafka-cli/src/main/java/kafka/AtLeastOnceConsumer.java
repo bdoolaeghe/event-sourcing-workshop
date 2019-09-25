@@ -15,12 +15,12 @@ import java.util.Properties;
 @Slf4j
 public class AtLeastOnceConsumer {
 
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final String[] topics;
+    private final EventListener eventListener;
     private volatile boolean running;
 
-    public AtLeastOnceConsumer(ApplicationEventPublisher applicationEventPublisher, String... topics) {
-        this.applicationEventPublisher = applicationEventPublisher;
+    public AtLeastOnceConsumer(EventListener eventListener, String... topics) {
+        this.eventListener = eventListener;
         this.topics = topics;
     }
 
@@ -46,7 +46,7 @@ public class AtLeastOnceConsumer {
                     try {
                         Object message = fromJson(rec.key(), rec.value());
                         log.debug("received: " + message);
-                        applicationEventPublisher.publishEvent(message);
+                        eventListener.on(message);
                     } catch (Exception e) {
                         log.warn("Failure. Discarding event: " + rec.value(), e);
                     } finally {

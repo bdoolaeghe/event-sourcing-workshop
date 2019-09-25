@@ -1,25 +1,15 @@
 import kafka.AtLeastOnceConsumer;
 import kafka.Producer;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = MainTestConfig.class)
+@Slf4j
 public class ProducerConsumerTest {
 
-    @Autowired
-    ApplicationEventPublisher applicationEventPublisher;
-
-    @Autowired
-    private BlopEventListener blopEventListener;
+    private BlopEventListener blopEventListener = new BlopEventListener();
 
     @Test
     public void should_produce_then_consume() throws InterruptedException {
@@ -32,19 +22,29 @@ public class ProducerConsumerTest {
         producer.close();
 
         // Then consume
-        AtLeastOnceConsumer consumer = new AtLeastOnceConsumer(applicationEventPublisher, blopTopic);
+        AtLeastOnceConsumer consumer = new AtLeastOnceConsumer(blopEventListener, blopTopic);
         CompletableFuture.runAsync(() -> {
             consumer.start();
         });
 
         // then
-        TimeUnit.SECONDS.sleep(5);
+        pendingMessage(5000);
         consumer.stop();
-
+        Assertions.assertThat(blopEventListener.getReceived()).isNotNull();
         Assertions.assertThat(blopEventListener.getReceived().getBlop()).isEqualTo("a blop happened !");
     }
 
-
+    private void pendingMessage(int timeout) throws InterruptedException {
+        long waitTime = 100;
+        long startTime = System.currentTimeMillis();
+        while(startTime + timeout > System.currentTimeMillis()) {
+            if (blopEventListener.getReceived() != null) {
+                break;
+            } else {
+                Thread.sleep(waitTime);
+            }
+        }
+    }
 
 
 }

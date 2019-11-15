@@ -75,7 +75,7 @@ and **apply** all of them on a "new born" aggregate (*hydratation*).
 Now we have an `AccountRepository`, let's implement the bank account...
 
 ### Commands
-The commands `openAccount` and `closeAccount` are already implemented in `BankingService`. 
+The commands `openAccount` and `closeAccount` are already implemented in `BankCommandHandler`. 
 You should now implement the 2 commands:
 * `deposit`
 * `withdraw`

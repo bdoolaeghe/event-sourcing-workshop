@@ -10,7 +10,7 @@ import fr.soat.conference.domain.payment.AccountId;
 import fr.soat.conference.infra.booking.ConferenceRepository;
 import fr.soat.conference.infra.order.OrderRepository;
 import fr.soat.conference.infra.payment.AccountRepository;
-import fr.soat.eventsourcing.api.EventStore;
+import fr.soat.eventsourcing.impl.InMemoryEventStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class ConferenceBookingTest {
     ConferenceCommandHandler conferenceCommandHandler;
 
     @Autowired
-    EventStore eventStore;
+    InMemoryEventStore eventStore;
 
     @Before
     public void setUp() throws Exception {

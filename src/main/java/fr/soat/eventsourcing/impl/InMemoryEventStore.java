@@ -57,7 +57,6 @@ public class InMemoryEventStore implements EventStore {
         }
     }
 
-    @Override
     public void clear() {
         store.clear();
     }

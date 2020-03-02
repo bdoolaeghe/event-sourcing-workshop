@@ -24,4 +24,9 @@ public final class ConferenceName implements AggregateId {
     public String toString() {
         return name;
     }
+
+    @Override
+    public String getValue() {
+        return getName();
+    }
 }

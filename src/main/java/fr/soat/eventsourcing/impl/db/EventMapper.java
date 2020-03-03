@@ -2,7 +2,7 @@ package fr.soat.eventsourcing.impl.db;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.soat.eventsourcing.api.Event;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,13 +13,15 @@ import java.sql.SQLException;
 
 public class EventMapper implements RowMapper<Event> {
 
-    final private ObjectMapper objectMapper = configureObjectMapper();
+    private static final ObjectMapper objectMapper = configureObjectMapper();
 
-    private ObjectMapper configureObjectMapper() {
+    private static ObjectMapper configureObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         // map by field, not by property
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        objectMapper.writerWithDefaultPrettyPrinter();
+        EventMixins.registerOn(objectMapper);
         return objectMapper;
     }
 
@@ -28,6 +30,18 @@ public class EventMapper implements RowMapper<Event> {
         String eventType = rs.getString("event_type");
         String jsonContent = rs.getString("content");
         Class<? extends Event> eventTypeClass = getEventTypeClass(eventType);
+        return fromJson(jsonContent, eventTypeClass);
+    }
+
+    public static String toJson(Event event) {
+        try {
+            return objectMapper.writeValueAsString(event);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize event: " + event, e);
+        }
+    }
+
+    public static Event fromJson(String jsonContent, Class<? extends Event> eventTypeClass) {
         try {
             return objectMapper.readValue(jsonContent, eventTypeClass);
         } catch (IOException e) {

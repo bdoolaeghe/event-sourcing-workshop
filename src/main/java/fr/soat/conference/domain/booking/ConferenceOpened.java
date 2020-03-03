@@ -13,9 +13,9 @@ public class ConferenceOpened extends ConferenceEvent {
     private final int places;
     private final int seatPrice;
 
-    public ConferenceOpened(ConferenceName conferenceName, int palces, int seatPrice) {
+    public ConferenceOpened(ConferenceName conferenceName, int places, int seatPrice) {
         super(conferenceName);
-        this.places = palces;
+        this.places = places;
         this.seatPrice = seatPrice;
     }
 

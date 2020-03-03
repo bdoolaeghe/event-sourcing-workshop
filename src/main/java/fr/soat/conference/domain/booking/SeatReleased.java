@@ -12,8 +12,8 @@ public class SeatReleased extends ConferenceEvent {
 
     private final Seat seat;
 
-    public SeatReleased(ConferenceName id, Seat bookedSeat) {
-        super(id);
+    public SeatReleased(ConferenceName conferenceName, Seat bookedSeat) {
+        super(conferenceName);
         this.seat = bookedSeat;
     }
 

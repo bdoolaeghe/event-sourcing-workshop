@@ -13,8 +13,8 @@ public class SeatBooked extends ConferenceEvent {
     private final OrderId orderId;
     private final Seat seat;
 
-    public SeatBooked(ConferenceName id, OrderId orderId, Seat seat) {
-        super(id);
+    public SeatBooked(ConferenceName conferenceName, OrderId orderId, Seat seat) {
+        super(conferenceName);
         this.orderId = orderId;
         this.seat = seat;
     }

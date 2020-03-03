@@ -7,14 +7,13 @@ import fr.soat.eventsourcing.api.EventConcurrentUpdateException;
 import fr.soat.eventsourcing.api.EventStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.reverse;
 
-@Repository
+//@Repository
 public class InMemoryEventStore implements EventStore {
 
     private final ArrayListMultimap<String, Event> store = ArrayListMultimap.create();

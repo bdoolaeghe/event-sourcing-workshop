@@ -1,9 +1,12 @@
 package fr.soat.conference.domain.booking;
 
 import fr.soat.conference.domain.order.OrderId;
+import fr.soat.eventsourcing.api.EvolutionFunction;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+
+import static fr.soat.eventsourcing.api.Event.concat;
 
 @EqualsAndHashCode
 @ToString(callSuper = true)
@@ -18,7 +21,10 @@ public class SeatBookingRequestRefused extends ConferenceEvent {
     }
 
     @Override
-    public void applyOn(Conference conference) {
-        conference.apply(this);
+    @EvolutionFunction
+    public Conference applyOn(Conference conference) {
+        return conference.toBuilder()
+                .events(concat(conference.getEvents(), this))
+                .build();
     }
 }

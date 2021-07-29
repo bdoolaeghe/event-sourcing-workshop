@@ -1,24 +1,10 @@
 package fr.soat.eventsourcing.impl.db;
 
 import fr.soat.conference.application.configuration.ConferenceConfiguration;
-import fr.soat.conference.domain.booking.Conference;
-import fr.soat.conference.domain.booking.ConferenceName;
-import fr.soat.conference.domain.booking.Seat;
-import fr.soat.conference.domain.order.OrderId;
-import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.configuration.DbEventStoreConfiguration;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.Collections;
-import java.util.List;
-
-import static fr.soat.conference.domain.booking.ConferenceName.name;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
@@ -32,49 +18,48 @@ public class DBEventStoreTest {
 //        throw new RuntimeException("implement me !");
 //    }
 
-    @Autowired
-    DBEventStore dbEventStore;
-    private OrderId orderId = OrderId.next();
-
-    @Before
-    public void setUp() throws Exception {
-        dbEventStore.clear();
-    }
-
-    @Test
-    public void should_store_and_reload_conference_events() {
-        // Given
-        orderId = OrderId.next();
-        ConferenceName conferenceName = name("any conference name");
-        Conference conference = new Conference(conferenceName);
-        Seat seat = conference
-                .open(100, 10)
-                .bookSeat(orderId).get();
-        conference.cancelBooking(seat);
-        List<Event> events = conference.getChanges();
-
-        // When
-        dbEventStore.store(orderId, events);
-        List<Event> reloadedEvents = dbEventStore.loadEvents(orderId);
-
-        //FIXME test the entity rather than events
-        // Then
-        assertThat(reloadedEvents).isEqualTo(events);
-    }
-
-    @Test
-    public void should_store_and_reload_empty_event_list() {
-        // Given
-        orderId = OrderId.next();
-        List<Event> events = Collections.emptyList();
-
-        // When
-        dbEventStore.store(orderId, events);
-        List<Event> reloadedEvents = dbEventStore.loadEvents(orderId);
-
-        // Then
-        assertThat(reloadedEvents).isEqualTo(events);
-    }
+//    @Autowired
+//    DBEventStore dbEventStore;
+//
+//    @Before
+//    public void setUp() throws Exception {
+//        dbEventStore.clear();
+//    }
+//
+//    @Test
+//    public void should_store_and_reload_conference_events() {
+//        // Given
+//        int orderId = dbEventStore.newEntityId();
+//        ConferenceName conferenceName = name("any conference name");
+//        Conference conference = new Conference(conferenceName);
+//        Seat seat = conference
+//                .open(100, 10)
+//                .bookSeat(orderId).get();
+//        conference.cancelBooking(seat);
+//        List<Event> events = conference.getChanges();
+//
+//        // When
+//        dbEventStore.store(orderId, events);
+//        List<Event> reloadedEvents = dbEventStore.loadEvents(orderId);
+//
+//        //FIXME test the entity rather than events
+//        // Then
+//        assertThat(reloadedEvents).isEqualTo(events);
+//    }
+//
+//    @Test
+//    public void should_store_and_reload_empty_event_list() {
+//        // Given
+//        orderId = OrderId.next();
+//        List<Event> events = Collections.emptyList();
+//
+//        // When
+//        dbEventStore.store(orderId, events);
+//        List<Event> reloadedEvents = dbEventStore.loadEvents(orderId);
+//
+//        // Then
+//        assertThat(reloadedEvents).isEqualTo(events);
+//    }
 
 //    @Test
 //    public void should_store_be_idempotent() {

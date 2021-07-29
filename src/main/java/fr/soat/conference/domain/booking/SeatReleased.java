@@ -1,16 +1,22 @@
 package fr.soat.conference.domain.booking;
 
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import com.google.common.collect.Lists;
+import fr.soat.eventsourcing.api.EvolutionFunction;
 import lombok.ToString;
+import lombok.Value;
 
-@EqualsAndHashCode
+import java.util.List;
+
+import static fr.soat.conference.domain.booking.ConferenceStatus.OPEN;
+import static fr.soat.eventsourcing.api.Event.concat;
+
+
+@Value
 @ToString(callSuper = true)
-@Getter
 public class SeatReleased extends ConferenceEvent {
 
-    private final Seat seat;
+    Seat seat;
 
     public SeatReleased(ConferenceName conferenceName, Seat bookedSeat) {
         super(conferenceName);
@@ -18,7 +24,15 @@ public class SeatReleased extends ConferenceEvent {
     }
 
     @Override
-    public void applyOn(Conference conference) {
-        conference.apply(this);
+    @EvolutionFunction
+    public Conference applyOn(Conference conference) {
+        List<Seat> newAvailablerSeats = Lists.newArrayList(conference.getAvailableSeats());
+        newAvailablerSeats.add(seat);
+
+        return conference.toBuilder()
+                .status(OPEN)
+                .availableSeats(newAvailablerSeats)
+                .events(concat(conference.getEvents(), this))
+                .build();
     }
 }

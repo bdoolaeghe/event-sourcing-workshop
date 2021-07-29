@@ -3,40 +3,50 @@ package fr.soat.conference.infra.booking;
 import fr.soat.conference.domain.booking.Conference;
 import fr.soat.conference.domain.booking.ConferenceEvent;
 import fr.soat.conference.domain.booking.ConferenceName;
-import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EventStore;
+import fr.soat.eventsourcing.impl.db.AbstractRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-
 @Repository
-public class ConferenceRepository {
+public class ConferenceRepository extends AbstractRepository<ConferenceName, Conference, ConferenceEvent> {
 
-    private final EventStore eventStore;
-
-    public ConferenceRepository(EventStore eventStore) {
-        this.eventStore = eventStore;
+    public ConferenceRepository(EventStore<ConferenceName, ConferenceEvent> es) {
+        super(es);
     }
 
-    public void save(Conference conference) {
-        ConferenceName aggregateId = conference.getId();
-        eventStore.store(aggregateId, conference.getChanges());
+    @Override
+    protected ConferenceName newEntityId() {
+        throw new UnsupportedOperationException("Can not generate a conference name");
     }
 
-    public Conference load(ConferenceName conferenceName) {
-        List<ConferenceEvent> events = asRoomEvents(eventStore.loadEvents(conferenceName));
-        return hydrate(conferenceName, events);
+    @Override
+    protected Conference create(ConferenceName conferenceName) {
+        return Conference.create(conferenceName);
     }
-
-    private static Conference hydrate(ConferenceName conferenceName, List<ConferenceEvent> events) {
-        Conference conference = new Conference(conferenceName);
-        events.forEach(event -> event.applyOn(conference));
-        return conference;
-    }
-
-    private List<ConferenceEvent> asRoomEvents(List<Event> events) {
-        return events.stream().map(event -> (ConferenceEvent) event).collect(toList());
-    }
+    //
+//    private final EventStore eventStore;
+//
+//    public ConferenceRepository(EventStore eventStore) {
+//        this.eventStore = eventStore;
+//    }
+//
+//    public void save(Conference conference) {
+//        ConferenceName aggregateId = conference.getId();
+//        eventStore.store(aggregateId, conference.getChanges());
+//    }
+//
+//    public Conference load(ConferenceName conferenceName) {
+//        List<ConferenceEvent> events = asRoomEvents(eventStore.loadEvents(conferenceName));
+//        return hydrate(conferenceName, events);
+//    }
+//
+//    private static Conference hydrate(ConferenceName conferenceName, List<ConferenceEvent> events) {
+//        Conference conference = new Conference(conferenceName, 10);
+//        events.forEach(event -> event.applyOn(conference));
+//        return conference;
+//    }
+//
+//    private List<ConferenceEvent> asRoomEvents(List<Event> events) {
+//        return events.stream().map(event -> (ConferenceEvent) event).collect(toList());
+//    }
 }

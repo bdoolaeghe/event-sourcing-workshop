@@ -14,5 +14,5 @@ db/log:
 db/reset: db/down db/up
 
 db/psql:
-	docker exec -ti my_postgres_es bash -c "psql -U postgres"
+	docker exec -ti my_postgres_eventstore bash -c "psql -U postgres"
 

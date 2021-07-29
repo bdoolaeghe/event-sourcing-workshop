@@ -1,7 +1,7 @@
 package fr.soat.eventsourcing.impl.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import fr.soat.eventsourcing.api.AggregateId;
+import fr.soat.eventsourcing.api.EntityId;
 import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EventStore;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,22 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class DBEventStore implements EventStore {
+public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> implements EventStore<ENTITY_ID, EVENT_TYPE> {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private static final String SELECT = "SELECT id, "
-            + "aggregate_id,"
+    private static final String SELECT =
+            " SELECT event_id, "
+            + "entity_id,"
             + "event_sequence_id,"
             + "event_type,"
             + "timestamp,"
             + "content" +
             " FROM event " +
-            " WHERE aggregate_id = ? " +
+            " WHERE entity_id = ? " +
             " ORDER BY event_sequence_id";
 
-    private static final String INSERT = "INSERT INTO event ("
-            + "aggregate_id, "
+    private static final String INSERT =
+            "INSERT INTO event ("
+            + "entity_id, "
             + "event_sequence_id, "
             + "event_type, "
             + "content) VALUES (?,?,?,?)";
@@ -39,25 +41,30 @@ public class DBEventStore implements EventStore {
     }
 
     @Override
-    public List<Event> loadEvents(AggregateId aggregateId) {
+    public List<EVENT_TYPE> loadEvents(ENTITY_ID entityId) {
         return jdbcTemplate.query(
                 SELECT,
-                new Object[]{aggregateId.getValue()},
-                new EventMapper());
+                new Object[]{entityId.getValue()},
+                new EventMapper<EVENT_TYPE>());
     }
 
     @Override
-    public void store(AggregateId aggregateId, List<Event> events) {
-        List<Object[]> batchArgs = createInsertBatchArgs(aggregateId, events);
+    public void store(ENTITY_ID entityId, List<EVENT_TYPE> events) {
+        List<Object[]> batchArgs = createInsertBatchArgs(entityId, events);
         jdbcTemplate.batchUpdate(INSERT, batchArgs);
     }
 
-    private List<Object[]> createInsertBatchArgs(AggregateId aggregateId, List<Event> events) {
+    @Override
+    public int newEntityId() {
+        return jdbcTemplate.queryForObject("SELECT nextval('entity_id_seq')", Integer.class);
+    }
+
+    private List<Object[]> createInsertBatchArgs(ENTITY_ID entityId, List<EVENT_TYPE> events) {
         List<Object[]> batchArgs = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
-            Event event = events.get(i);
+            EVENT_TYPE event = events.get(i);
             batchArgs.add(new Object[] {
-                    aggregateId.getValue(),
+                    entityId.getValue(),
                     i,
                     event.getClass().getName(),
                     EventMapper.toJson(events.get(i))

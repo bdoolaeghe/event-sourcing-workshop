@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EventMapper implements RowMapper<Event> {
+public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TYPE> {
 
     private static final ObjectMapper objectMapper = configureObjectMapper();
 
@@ -26,14 +26,14 @@ public class EventMapper implements RowMapper<Event> {
     }
 
     @Override
-    public Event mapRow(ResultSet rs, int i) throws SQLException {
+    public EVENT_TYPE mapRow(ResultSet rs, int i) throws SQLException {
         String eventType = rs.getString("event_type");
         String jsonContent = rs.getString("content");
-        Class<? extends Event> eventTypeClass = getEventTypeClass(eventType);
+        Class<? extends EVENT_TYPE> eventTypeClass = getEventTypeClass(eventType);
         return fromJson(jsonContent, eventTypeClass);
     }
 
-    public static String toJson(Event event) {
+    public static <EVENT_TYPE extends Event> String toJson(EVENT_TYPE event) {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
@@ -41,7 +41,7 @@ public class EventMapper implements RowMapper<Event> {
         }
     }
 
-    public static Event fromJson(String jsonContent, Class<? extends Event> eventTypeClass) {
+    public static <EVENT_TYPE extends Event> EVENT_TYPE fromJson(String jsonContent, Class<? extends EVENT_TYPE> eventTypeClass) {
         try {
             return objectMapper.readValue(jsonContent, eventTypeClass);
         } catch (IOException e) {
@@ -49,9 +49,9 @@ public class EventMapper implements RowMapper<Event> {
         }
     }
 
-    private Class<? extends Event> getEventTypeClass(String eventType) {
+    private Class<? extends EVENT_TYPE> getEventTypeClass(String eventType) {
         try {
-            return (Class<? extends Event>) Class.forName(eventType);
+            return (Class<? extends EVENT_TYPE>) Class.forName(eventType);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Unknown event type: " + eventType, e);
         }

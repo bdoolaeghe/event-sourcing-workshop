@@ -1,6 +1,6 @@
 postgres:
   image: postgres:10.9
-  container_name: "my_postgres_es"
+  container_name: "my_postgres_eventstore"
   ports:
     - "5432:5432"
   volumes:

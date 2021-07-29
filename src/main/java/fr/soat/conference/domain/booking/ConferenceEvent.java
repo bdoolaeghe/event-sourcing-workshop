@@ -1,24 +1,24 @@
 package fr.soat.conference.domain.booking;
 
-import fr.soat.eventsourcing.api.AggregateId;
+import fr.soat.eventsourcing.api.EntityId;
 import fr.soat.eventsourcing.api.Event;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Getter
-@ToString(of = "seatId")
-public abstract class ConferenceEvent implements Event {
+@EqualsAndHashCode
+@NoArgsConstructor
+public abstract class ConferenceEvent implements Event<Conference> {
 
-    private final ConferenceName conferenceName;
+    private ConferenceName conferenceName;
 
     public ConferenceEvent(ConferenceName conferenceName) {
         this.conferenceName = conferenceName;
     }
 
-    public AggregateId getAggregateId() {
+    public EntityId getEntityId() {
         return conferenceName;
     }
-
-    public abstract void applyOn(Conference conference);
 
 }

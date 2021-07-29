@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 public interface Event<ENTITY> {
-    EntityId getEntityId();
     ENTITY applyOn(ENTITY entity);
 
     static <T extends Event> List<T> concat(List<T> events, T event) {

@@ -44,7 +44,7 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
     public List<EVENT_TYPE> loadEvents(ENTITY_ID entityId) {
         return jdbcTemplate.query(
                 SELECT,
-                new Object[]{entityId.getValue()},
+                new Object[]{entityId.getIdValue()},
                 new EventMapper<EVENT_TYPE>());
     }
 
@@ -64,7 +64,7 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
         for (int i = 0; i < events.size(); i++) {
             EVENT_TYPE event = events.get(i);
             batchArgs.add(new Object[] {
-                    entityId.getValue(),
+                    entityId.getIdValue(),
                     i,
                     event.getClass().getName(),
                     EventMapper.toJson(events.get(i))

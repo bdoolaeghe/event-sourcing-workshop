@@ -1,7 +1,6 @@
 package fr.soat.festival.infra.concert;
 
 import fr.soat.eventsourcing.configuration.DbEventStoreConfiguration;
-import fr.soat.eventsourcing.impl.db.DBEventStore;
 import fr.soat.festival.application.configuration.ConferenceConfiguration;
 import fr.soat.festival.domain.concert.ConcertRepository;
 import fr.soat.festival.domain.concert.model.Artist;
@@ -10,7 +9,6 @@ import fr.soat.festival.domain.place.model.PlaceId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 @Transactional
 class ConcertDbRepositoryTest {
-
-    @Autowired
-    DBEventStore dbEventStore;
 
     @Autowired
     ConcertRepository concertRepository;
@@ -45,7 +40,7 @@ class ConcertDbRepositoryTest {
         Concert reloadedConcert = concertRepository.load(savedConcert.getId());
 
         // Then
-        assertThat(reloadedConcert).isEqualTo(concert);
+        assertThat(reloadedConcert).isEqualToComparingFieldByFieldRecursively(concert);
     }
 
 

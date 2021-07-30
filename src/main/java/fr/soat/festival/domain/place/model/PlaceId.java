@@ -12,7 +12,7 @@ public final class PlaceId implements EntityId {
 
     private String id;
 
-    public static PlaceId of(String id) {
+    public static PlaceId from(String id) {
         return new PlaceId(id);
     }
 

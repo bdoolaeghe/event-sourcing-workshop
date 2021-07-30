@@ -1,5 +1,6 @@
-package fr.soat.eventsourcing.impl.db;
+package fr.soat.festival.infra.concert;
 
+import fr.soat.eventsourcing.impl.db.EventMapper;
 import fr.soat.festival.domain.concert.model.ConcertEvent;
 import fr.soat.festival.domain.concert.model.ConcertRoomAssigned;
 import fr.soat.festival.domain.place.model.PlaceId;
@@ -18,7 +19,7 @@ class ConcertEventMapperTest {
     void should_serdes_ConcertEvent(ConcertEvent event) {
         // When
         String json = EventMapper.toJson(event);
-        ConcertRoomAssigned deserEvent = EventMapper.fromJson(json, ConcertRoomAssigned.class);
+        ConcertEvent deserEvent = EventMapper.fromJson(json, event.getClass());
 
         // Then
         assertThat(deserEvent).isEqualToComparingFieldByField(event);
@@ -27,8 +28,8 @@ class ConcertEventMapperTest {
     private static Stream<ConcertEvent> someConcertEvents() {
         return Stream.of(
                 new ConcertRoomAssigned(asList(
-                        PlaceId.of("1"),
-                        PlaceId.of("2")))
+                        PlaceId.from("1"),
+                        PlaceId.from("2")))
         );
     }
 }

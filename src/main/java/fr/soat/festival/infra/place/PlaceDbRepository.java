@@ -22,7 +22,7 @@ public class PlaceDbRepository extends AbstractDbRepository<PlaceId, Place, Plac
 
     @Override
     protected PlaceId newEntityId() {
-        return PlaceId.of(super.generateEntityId());
+        return PlaceId.from(super.generateEntityId());
     }
 
     @Override

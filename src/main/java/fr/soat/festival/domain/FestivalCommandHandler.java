@@ -25,7 +25,7 @@ public class FestivalCommandHandler {
 
     @Transactional
     public Concert openConcert(Artist artist, int places, int price) {
-        // create cPlaceId idoncert
+        // create concert
         Concert concert = concertRepository.save(Concert.create(artist));
 
         // creates places

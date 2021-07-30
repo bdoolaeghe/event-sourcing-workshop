@@ -1,4 +1,12 @@
 package fr.soat.festival.domain.spectator;
 
-public interface SpectatorRepository {
+import fr.soat.eventsourcing.impl.db.EventStoreRepository;
+import fr.soat.festival.domain.concert.model.Artist;
+import fr.soat.festival.domain.concert.model.Concert;
+import fr.soat.festival.domain.concert.model.ConcertEvent;
+import fr.soat.festival.domain.spectator.model.Spectator;
+import fr.soat.festival.domain.spectator.model.SpectatorEvent;
+import fr.soat.festival.domain.spectator.model.SpectatorId;
+
+public interface SpectatorRepository extends EventStoreRepository<SpectatorId, Spectator, SpectatorEvent> {
 }

@@ -1,10 +1,9 @@
-package fr.soat.festival.infra.concert;
+package fr.soat.festival.infra.spectator;
 
 import fr.soat.eventsourcing.configuration.DbEventStoreConfiguration;
 import fr.soat.festival.application.configuration.ConferenceConfiguration;
-import fr.soat.festival.domain.concert.ConcertRepository;
-import fr.soat.festival.domain.concert.model.Artist;
-import fr.soat.festival.domain.concert.model.Concert;
+import fr.soat.festival.domain.spectator.SpectatorRepository;
+import fr.soat.festival.domain.spectator.model.Spectator;
 import fr.soat.festival.domain.place.model.PlaceId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -22,25 +22,23 @@ import static org.assertj.core.api.Assertions.assertThat;
         ConferenceConfiguration.class
 })
 @Transactional
-class ConcertDbRepositoryTest {
+class SpectatorDbRepositoryTest {
 
     @Autowired
-    ConcertRepository concertRepository;
-
-    Artist anArtist = Artist.named("Marcel & son orchestre");
+    SpectatorRepository spectatorRepository;
 
     @Test
-    public void should_store_and_reload_concert() {
+    public void should_store_and_reload_spectator() {
         // Given
-        Concert concert = Concert.create(anArtist)
-                .assignRoom(singletonList(PlaceId.from("place_test_id")));
+        Spectator spectator = Spectator.create();
 
         // When
-        Concert savedConcert = concertRepository.save(concert);
-        Concert reloadedConcert = concertRepository.load(savedConcert.getId());
+        Spectator savedSpectator = spectatorRepository.save(spectator);
+        Spectator reloadedSpectator = spectatorRepository.load(savedSpectator.getId());
 
         // Then
-        assertThat(reloadedConcert).isEqualToComparingFieldByFieldRecursively(concert);
+        assertThat(reloadedSpectator).isEqualToIgnoringGivenFields(spectator, "id");
+        assertThat(reloadedSpectator.getId()).isEqualTo(savedSpectator.getId());
     }
 
 

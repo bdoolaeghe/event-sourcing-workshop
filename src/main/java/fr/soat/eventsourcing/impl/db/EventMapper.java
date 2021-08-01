@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import fr.soat.eventsourcing.api.Event;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -21,6 +22,7 @@ public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TY
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         objectMapper.writerWithDefaultPrettyPrinter();
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         EventMixins.registerOn(objectMapper);
         return objectMapper;
     }

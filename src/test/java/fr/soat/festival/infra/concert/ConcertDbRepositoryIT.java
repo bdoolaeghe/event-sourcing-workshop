@@ -1,7 +1,7 @@
 package fr.soat.festival.infra.concert;
 
 import fr.soat.eventsourcing.configuration.DbEventStoreConfiguration;
-import fr.soat.festival.application.configuration.ConferenceConfiguration;
+import fr.soat.festival.application.configuration.FestivalConfiguration;
 import fr.soat.festival.domain.concert.ConcertRepository;
 import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.concert.model.Concert;
@@ -19,10 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         DbEventStoreConfiguration.class,
-        ConferenceConfiguration.class
+        FestivalConfiguration.class
 })
 @Transactional
-class ConcertDbRepositoryTest {
+class ConcertDbRepositoryIT {
 
     @Autowired
     ConcertRepository concertRepository;

@@ -1,12 +1,11 @@
 package fr.soat.festival.domain.concert.model;
 
-import fr.soat.festival.domain.place.model.Place;
 import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.*;
 
 import java.util.List;
 
-import static fr.soat.eventsourcing.api.Event.concat;
+import static fr.soat.eventsourcing.api.Event.append;
 import static java.util.Collections.unmodifiableList;
 
 @NoArgsConstructor
@@ -23,7 +22,7 @@ public class ConcertRoomAssigned implements ConcertEvent {
         return concert.toBuilder()
                 .availablePlaces(unmodifiableList(availablePlaces))
                 .status(Concert.Status.BOOKABLE)
-                .events(concat(concert.getEvents(), this))
+                .events(append(concert.getEvents(), this))
                 .build();
     }
 

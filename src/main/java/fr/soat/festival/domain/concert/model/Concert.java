@@ -44,6 +44,18 @@ public class Concert implements Entity<Artist, ConcertEvent> {
                 .applyOn(this);
     }
 
+    @DecisionFunction
+    public Concert book(PlaceId placeId) {
+        if (availablePlaces.contains(placeId)) {
+            return new ConcertPlaceBooked(placeId)
+                    .applyOn(this);
+        } else {
+            throw new IllegalArgumentException("Can not book place " + placeId +
+                                               " because this place is not available");
+        }
+    }
+
+
 //    @DecisionFunction
 //    public Optional<Place> bookSeat(OrderId orderId) {
 //        if (status == FULL) {
@@ -60,6 +72,17 @@ public class Concert implements Entity<Artist, ConcertEvent> {
 //    public void cancelBooking(Place place) {
 //        new SeatReleased(getId(), place).applyOn(this);
 //    }
+
+    public boolean isFull() {
+        return status == Status.FULL;
+    }
+
+    public PlaceId getAnAvailablePlaceId() {
+       return availablePlaces.stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Concert is " +
+                                                                status + ". Can not provide any available place !"));
+    }
 
     @Override
     public Artist getId() {

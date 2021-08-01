@@ -1,6 +1,7 @@
 package fr.soat.festival.domain.place.model;
 
-import fr.soat.festival.domain.concert.model.Artist;
+import fr.soat.festival.domain.spectator.model.Spectator;
+import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.*;
 
 import static fr.soat.eventsourcing.api.Event.append;
@@ -10,17 +11,15 @@ import static fr.soat.eventsourcing.api.Event.append;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class PlacePricedAndAllocated implements PlaceEvent {
+public class PlaceAssigned implements PlaceEvent {
 
-    private Artist artist;
-    private int price;
+    private SpectatorId assignee;
 
     @Override
     public Place applyOn(Place place) {
         return place.toBuilder()
-                .artist(artist)
-                .price(price)
-                .status(Place.Status.AVAILABLE)
+                .assignee(assignee)
+                .status(Place.Status.ASSIGNED)
                 .events(append(place.getEvents(), this))
                 .build();
     }

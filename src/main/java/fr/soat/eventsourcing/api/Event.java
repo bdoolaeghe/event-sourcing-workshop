@@ -9,12 +9,12 @@ import static java.util.stream.Collectors.toList;
 public interface Event<ENTITY> {
     ENTITY applyOn(ENTITY entity);
 
-    static <T extends Event> List<T> concat(List<T> events, T event) {
-        if (events == null) {
-            events = new ArrayList<>();
+    static <T> List<T> append(List<T> list, T object) {
+        if (list == null) {
+            list = new ArrayList<>();
         }
-        return Stream.concat(events.stream(),
-                Stream.of(event))
+        return Stream.concat(list.stream(),
+                Stream.of(object))
                 .collect(toList());
     }
 }

@@ -34,7 +34,7 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
             + "event_type, "
             + "content) VALUES (?,?,?,?)";
 
-    private final String TRUNCATE = "TRUNCATE event";
+    private static final String TRUNCATE = "TRUNCATE event";
 
     public DBEventStore(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);

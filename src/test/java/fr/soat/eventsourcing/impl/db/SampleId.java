@@ -1,15 +1,13 @@
 package fr.soat.eventsourcing.impl.db;
 
 import fr.soat.eventsourcing.api.EntityId;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 @Builder
+@ToString
 public class SampleId implements EntityId {
 
     private String id;

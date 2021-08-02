@@ -26,10 +26,10 @@ class DBEventStoreIT {
     void should_create_save_and_reload() {
         // Given
         SampleEntity e = SampleEntity
-                .create(SampleId.from("1"))
+                .create(SampleId.from("1"), 0)
                 .setSampleValue("create this");
         // When
-        dbEventStore.store(e.getId(), e.getEvents());
+        dbEventStore.store(e.getId(), e.getEvents(), 0);
         List<SampleEvent> reloadedEvents = dbEventStore.loadEvents(e.getId());
 
         // Then

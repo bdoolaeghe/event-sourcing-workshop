@@ -31,19 +31,21 @@ public class Place implements Entity<PlaceId, PlaceEvent> {
     SpectatorId assignee;
 
     List<PlaceEvent> events;
+    int version;
 
     public static Place create() {
-        return create(null);
+        return create(null, 0);
     }
 
-    public static Place create(PlaceId id) {
+    public static Place create(PlaceId id, int version) {
         return new Place(
                 id,
                 Status.NEW,
                 null,
                 null,
                 null,
-                emptyList()
+                emptyList(),
+                version
         );
     }
 

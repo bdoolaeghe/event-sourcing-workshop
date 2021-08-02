@@ -49,8 +49,8 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
     }
 
     @Override
-    public void store(ENTITY_ID entityId, List<EVENT_TYPE> events) {
-        List<Object[]> batchArgs = createInsertBatchArgs(entityId, events);
+    public void store(ENTITY_ID entityId, List<EVENT_TYPE> events, int version) {
+        List<Object[]> batchArgs = createInsertBatchArgs(entityId, events, version);
         jdbcTemplate.batchUpdate(INSERT, batchArgs);
     }
 
@@ -59,13 +59,13 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
         return jdbcTemplate.queryForObject("SELECT nextval('entity_id_seq')", Integer.class);
     }
 
-    private List<Object[]> createInsertBatchArgs(ENTITY_ID entityId, List<EVENT_TYPE> events) {
+    private List<Object[]> createInsertBatchArgs(ENTITY_ID entityId, List<EVENT_TYPE> events, int version) {
         List<Object[]> batchArgs = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             EVENT_TYPE event = events.get(i);
             batchArgs.add(new Object[] {
                     entityId.getIdValue(),
-                    i,
+                    version + i,
                     event.getClass().getName(),
                     EventMapper.toJson(events.get(i))
             });

@@ -40,7 +40,7 @@ class ConcertDbRepositoryIT {
         Concert reloadedConcert = concertRepository.load(savedConcert.getId());
 
         // Then
-        assertThat(reloadedConcert).isEqualToComparingFieldByFieldRecursively(concert);
+        assertThat(reloadedConcert).isEqualToIgnoringGivenFields(concert, "version");
     }
 
 

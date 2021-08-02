@@ -84,7 +84,7 @@ class FestivalCommandHandlerIT {
         assertThat(bookedPlace.getArtist()).isEqualTo(marcelEtOrchestra);
         assertThat(bookedPlace.getPrice()).isEqualTo(3);
         assertThat(bookedPlace.getStatus()).isEqualTo(Place.Status.ASSIGNED);
-        assertThat(bookedPlace.getAssignee()).isEqualTo(spectator);
+        assertThat(bookedPlace.getAssignee()).isEqualTo(spectator.getId());
 
         Concert reloadedConcert = concertRepository.load(marcelEtOrchestra);
         assertThat(reloadedConcert.getAvailablePlaces()).hasSize(9);
@@ -93,7 +93,7 @@ class FestivalCommandHandlerIT {
         Spectator reloadedSpectator = spectatorRepository.load(spectator.getId());
         assertThat(reloadedSpectator.getBookings()).hasSize(1);
         Place spectatorPlace = placeRepository.load(reloadedSpectator.getBookings().get(0));
-        assertThat(spectatorPlace).isEqualTo(bookedPlace);
+        assertThat(spectatorPlace).isEqualToIgnoringGivenFields(bookedPlace, "version");
     }
 
     @Test
@@ -105,17 +105,18 @@ class FestivalCommandHandlerIT {
 
         // When
         Place marcelBookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
+        spectator = spectatorRepository.load(spectator.getId());
         Place skapeBookedPlace = festivalCommandHandler.book(skape, spectator).get();
 
         // Then
         assertThat(marcelBookedPlace.getArtist()).isEqualTo(marcelEtOrchestra);
         assertThat(marcelBookedPlace.getPrice()).isEqualTo(3);
         assertThat(marcelBookedPlace.getStatus()).isEqualTo(Place.Status.ASSIGNED);
-        assertThat(marcelBookedPlace.getAssignee()).isEqualTo(spectator);
+        assertThat(marcelBookedPlace.getAssignee()).isEqualTo(spectator.getId());
         assertThat(skapeBookedPlace.getArtist()).isEqualTo(skape);
         assertThat(skapeBookedPlace.getPrice()).isEqualTo(2);
         assertThat(skapeBookedPlace.getStatus()).isEqualTo(Place.Status.ASSIGNED);
-        assertThat(skapeBookedPlace.getAssignee()).isEqualTo(spectator);
+        assertThat(skapeBookedPlace.getAssignee()).isEqualTo(spectator.getId());
 
         Concert reloadedMarcelConcert = concertRepository.load(marcelEtOrchestra);
         assertThat(reloadedMarcelConcert.getAvailablePlaces()).hasSize(9);
@@ -127,9 +128,9 @@ class FestivalCommandHandlerIT {
         Spectator reloadedSpectator = spectatorRepository.load(spectator.getId());
         assertThat(reloadedSpectator.getBookings()).hasSize(2);
         Place spectatorMarcelPlace = placeRepository.load(reloadedSpectator.getBookings().get(0));
-        assertThat(spectatorMarcelPlace).isEqualTo(skapeBookedPlace);
+        assertThat(spectatorMarcelPlace).isEqualToIgnoringGivenFields(marcelBookedPlace, "version");
         Place spectatorSkapePlace = placeRepository.load(reloadedSpectator.getBookings().get(1));
-        assertThat(spectatorSkapePlace).isEqualTo(skapeBookedPlace);
+        assertThat(spectatorSkapePlace).isEqualToIgnoringGivenFields(skapeBookedPlace, "version");
     }
 
     @Test
@@ -154,7 +155,7 @@ class FestivalCommandHandlerIT {
         Spectator reloadedEarlySpectator = spectatorRepository.load(earlySpectator.getId());
         assertThat(reloadedEarlySpectator.getBookings()).hasSize(1);
         Place earlySpectatorPlace = placeRepository.load(reloadedEarlySpectator.getBookings().get(0));
-        assertThat(earlySpectatorPlace).isEqualTo(bookedPlace);
+        assertThat(earlySpectatorPlace).isEqualToIgnoringGivenFields(bookedPlace.get(), "version");
         Spectator reloadedLateSpectator = spectatorRepository.load(lateSspectator.getId());
         assertThat(reloadedLateSpectator.getBookings()).isEmpty();
     }

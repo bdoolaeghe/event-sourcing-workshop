@@ -26,8 +26,8 @@ public class PlaceDbRepository extends AbstractDbRepository<PlaceId, Place, Plac
     }
 
     @Override
-    protected Place create(PlaceId id) {
-        return Place.create(id);
+    protected Place create(PlaceId id, int version) {
+        return Place.create(id, version);
     }
 
     @Override

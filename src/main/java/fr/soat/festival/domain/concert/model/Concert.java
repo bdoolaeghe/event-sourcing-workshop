@@ -28,13 +28,19 @@ public class Concert implements Entity<Artist, ConcertEvent> {
     List<PlaceId> availablePlaces;
 
     List<ConcertEvent> events;
+    int version;
 
     public static Concert create(Artist artist) {
+        return create(artist, 0);
+    }
+
+    public static Concert create(Artist artist, int version) {
         return Concert.builder()
                 .artist(artist)
                 .status(Status.NEW)
                 .availablePlaces(emptyList())
                 .events(emptyList())
+                .version(version)
                 .build();
     }
 

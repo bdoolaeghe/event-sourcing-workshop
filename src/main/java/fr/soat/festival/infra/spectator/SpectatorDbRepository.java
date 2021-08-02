@@ -22,8 +22,8 @@ public class SpectatorDbRepository extends AbstractDbRepository<SpectatorId, Spe
     }
 
     @Override
-    protected Spectator create(SpectatorId id) {
-        return Spectator.create(id);
+    protected Spectator create(SpectatorId id, int version) {
+        return Spectator.create(id, version);
     }
 
 }

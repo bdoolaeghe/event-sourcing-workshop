@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Builder
+@ToString
 public class SpectatorId implements EntityId {
 
     private String id;

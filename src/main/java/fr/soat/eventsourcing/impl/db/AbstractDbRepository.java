@@ -1,9 +1,7 @@
 package fr.soat.eventsourcing.impl.db;
 
-import fr.soat.eventsourcing.api.Entity;
-import fr.soat.eventsourcing.api.EntityId;
-import fr.soat.eventsourcing.api.Event;
-import fr.soat.eventsourcing.api.EventStore;
+import fr.soat.eventsourcing.api.*;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
 
@@ -24,8 +22,18 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
         if (entityId == null) {
             entityId = newEntityId();
         }
-        eventStore.store(entityId, entity.getEvents());
-        return hydrate(entityId, entity.getEvents());
+        int version = entity.getVersion();
+        List<EVENT_TYPE> transientEvents = entity.getEvents().subList(version, entity.getEvents().size());
+
+        try {
+            if (transientEvents.size() > 0) {
+                eventStore.store(entityId, transientEvents, version);
+            }
+            return hydrate(entityId, entity.getEvents());
+        } catch (DuplicateKeyException e) {
+            // a concurrent update occurred
+            throw new EventConcurrentUpdateException(entity, e);
+        }
     }
 
     protected abstract ENTITY_ID newEntityId();
@@ -39,10 +47,10 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
         return hydrate(entityId, events);
     }
 
-    protected abstract ENTITY create(ENTITY_ID entityId);
+    protected abstract ENTITY create(ENTITY_ID entityId, int version);
 
     private ENTITY hydrate(ENTITY_ID entityId, List<EVENT_TYPE> events) {
-        ENTITY entity = create(entityId);
+        ENTITY entity = create(entityId, events.size());
         for (EVENT_TYPE event : events) {
             entity = event.applyOn(entity);
         }

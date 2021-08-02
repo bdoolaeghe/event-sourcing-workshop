@@ -42,7 +42,7 @@ class PlaceDbRepositoryIT {
         Place reloadedPlace = placeRepository.load(savedPlace.getId());
 
         // Then
-        assertThat(reloadedPlace).isEqualToIgnoringGivenFields(place, "id");
+        assertThat(reloadedPlace).isEqualToIgnoringGivenFields(place, "id", "version");
         assertThat(reloadedPlace.getId()).isEqualTo(savedPlace.getId());
     }
 

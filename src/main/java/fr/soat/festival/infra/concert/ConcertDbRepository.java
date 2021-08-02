@@ -21,7 +21,7 @@ public class ConcertDbRepository extends AbstractDbRepository<Artist, Concert, C
     }
 
     @Override
-    protected Concert create(Artist artist) {
-        return Concert.create(artist);
+    protected Concert create(Artist artist, int version) {
+        return Concert.create(artist, version);
     }
 }

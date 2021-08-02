@@ -16,7 +16,7 @@ public class SampleDbRepository extends AbstractDbRepository<SampleId, SampleEnt
     }
 
     @Override
-    protected SampleEntity create(SampleId entityId) {
-        return SampleEntity.create(entityId);
+    protected SampleEntity create(SampleId entityId, int version) {
+        return SampleEntity.create(entityId, version);
     }
 }

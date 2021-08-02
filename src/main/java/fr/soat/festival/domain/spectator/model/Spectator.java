@@ -22,17 +22,19 @@ public class Spectator implements Entity<SpectatorId, SpectatorEvent> {
     List<Artist> rejectedBookings;
 
     List<SpectatorEvent> events;
+    int version;
 
     public static Spectator create() {
-        return create(null);
+        return create(null, 0);
     }
 
-    public static Spectator create(SpectatorId id) {
+    public static Spectator create(SpectatorId id, int version) {
         return new Spectator(
                 id,
                 emptyList(),
                 emptyList(),
-                emptyList()
+                emptyList(),
+                version
         );
     }
 

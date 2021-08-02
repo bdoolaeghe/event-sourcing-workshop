@@ -5,6 +5,7 @@ import fr.soat.eventsourcing.configuration.DbEventStoreConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +82,7 @@ class AbstractDbRepositoryIT {
         assertThat(e.getSampleValue()).isEqualTo("another sample value");
     }
 
+    @Rollback(false)
     @Test
     void should_fail_concurrent_update() {
         // Given
@@ -89,16 +91,15 @@ class AbstractDbRepositoryIT {
         SampleId id = repository.save(e).getId();
         SampleEntity eV1 = repository.load(id)
                 .setSampleValue("a version value");
+        SampleEntity eV2 = repository.load(id);
         repository.save(eV1);
 
-        // When
-        SampleEntity eV2 = repository.load(id)
-                .setSampleValue("another version value");
-
-        // Then
+        // When/Then
         assertThatThrownBy(() ->
-                repository.save(eV2))
+                repository.save(
+                        eV2.setSampleValue("another version value")
+                ))
                 .isInstanceOf(EventConcurrentUpdateException.class)
-                .hasMessage("SampleEntity '" + id + "' has been concurrently updated");
+                .hasMessageContaining("Can not save this concurrent version. Refresh before update and try again.");
     }
 }

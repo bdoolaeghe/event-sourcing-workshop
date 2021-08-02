@@ -18,16 +18,18 @@ public class SampleEntity implements Entity<SampleId, SampleEvent> {
     String sampleValue;
 
     List<SampleEvent> events;
+    int version;
 
     public static SampleEntity create() {
-        return create(null);
+        return create(null, 0);
     }
 
-    public static SampleEntity create(SampleId id) {
+    public static SampleEntity create(SampleId id, int version) {
         return new SampleEntity(
                 id,
                 null,
-                emptyList()
+                emptyList(),
+                version
         );
     }
 

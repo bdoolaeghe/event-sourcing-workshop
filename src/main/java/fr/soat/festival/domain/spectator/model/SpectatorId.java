@@ -1,7 +1,6 @@
 package fr.soat.festival.domain.spectator.model;
 
 import fr.soat.eventsourcing.api.EntityId;
-import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.*;
 
 @NoArgsConstructor

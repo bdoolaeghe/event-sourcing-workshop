@@ -1,8 +1,8 @@
 package fr.soat.festival.domain.spectator.model;
 
+import fr.soat.eventsourcing.api.DecisionFunction;
 import fr.soat.eventsourcing.api.Entity;
 import fr.soat.festival.domain.concert.model.Artist;
-import fr.soat.festival.domain.place.model.Place;
 import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -38,18 +38,17 @@ public class Spectator implements Entity<SpectatorId, SpectatorEvent> {
         );
     }
 
-    public List<SpectatorEvent> getEvents() {
-        return events;
-    }
-
+    @DecisionFunction
     public Spectator rejectBooking(Artist artist) {
         return new SpectatorBookingRejected(artist).applyOn(this);
     }
 
+    @DecisionFunction
     public Spectator registerBooking(PlaceId placeId) {
         return new SpectatorBookingRegistered(placeId).applyOn(this);
     }
 
+    @DecisionFunction
     public Spectator cancelBooking(PlaceId placeId) {
         return new SpectatorBookingCanceled(placeId).applyOn(this);
     }

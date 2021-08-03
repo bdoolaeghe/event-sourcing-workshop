@@ -1,6 +1,5 @@
 package fr.soat.festival.domain.concert.model;
 
-import fr.soat.festival.domain.place.model.Place;
 import fr.soat.eventsourcing.api.DecisionFunction;
 import fr.soat.eventsourcing.api.Entity;
 import fr.soat.festival.domain.place.model.PlaceId;
@@ -50,7 +49,6 @@ public class Concert implements Entity<Artist, ConcertEvent> {
                 .applyOn(this);
     }
 
-    @DecisionFunction
     public Concert book(PlaceId placeId) {
         if (availablePlaces.contains(placeId)) {
             return new ConcertPlaceBooked(placeId)
@@ -61,6 +59,7 @@ public class Concert implements Entity<Artist, ConcertEvent> {
         }
     }
 
+    @DecisionFunction
     public Concert cancelBooking(PlaceId placeId) {
         if (availablePlaces.contains(placeId)) {
             throw new IllegalArgumentException("Can not cancel booking of place " + placeId +". Place already available for concert " + artist);
@@ -69,24 +68,6 @@ public class Concert implements Entity<Artist, ConcertEvent> {
                     .applyOn(this);
         }
     }
-
-
-//    @DecisionFunction
-//    public Optional<Place> bookSeat(OrderId orderId) {
-//        if (status == FULL) {
-//            new SeatBookingRequestRefused(getId(), orderId).applyOn(this);
-//            return Optional.empty();
-//        } else {
-//            Place bookedPlace = availableSeats.get(0);
-//            new SeatBooked(getId(), orderId, bookedPlace).applyOn(this);
-//            return Optional.of(bookedPlace);
-//        }
-//    }
-//
-//    @DecisionFunction
-//    public void cancelBooking(Place place) {
-//        new SeatReleased(getId(), place).applyOn(this);
-//    }
 
     public boolean isFull() {
         return status == Status.FULL;
@@ -103,13 +84,5 @@ public class Concert implements Entity<Artist, ConcertEvent> {
     public Artist getId() {
         return getArtist();
     }
-
-//    @Override
-//    public String toString() {
-//        return "room " + this.getId().getName() +
-//               ": " +
-//               availableSeats.size() + " / " + places.size() + " available seats" +
-//               " (" + status + ")";
-//    }
 
 }

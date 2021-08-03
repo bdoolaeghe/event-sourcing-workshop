@@ -7,9 +7,7 @@ import java.util.List;
 
 public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
         ENTITY extends Entity<ENTITY_ID, EVENT_TYPE>,
-        EVENT_TYPE extends Event<ENTITY>>
-//        implements EventStoreRepository<ENTITY_ID, ENTITY>
-{
+        EVENT_TYPE extends Event<ENTITY>> {
 
     private final EventStore<ENTITY_ID, EVENT_TYPE> eventStore;
 
@@ -18,6 +16,9 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
     }
 
     public ENTITY save(ENTITY entity) {
+        if (entity.getEvents().isEmpty()) {
+            throw new IllegalArgumentException("entity " + entity + " has no state (empty event list). Can not save.");
+        }
         ENTITY_ID entityId = entity.getId();
         if (entityId == null) {
             entityId = newEntityId();
@@ -44,6 +45,9 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
 
     public ENTITY load(ENTITY_ID entityId) {
         List<EVENT_TYPE> events = eventStore.loadEvents(entityId);
+        if (events.isEmpty()) {
+            throw new IllegalArgumentException("entity (id='" + entityId + "') not found.");
+        }
         return hydrate(entityId, events);
     }
 

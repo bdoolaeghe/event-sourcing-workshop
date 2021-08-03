@@ -27,20 +27,22 @@ class AbstractDbRepositoryIT {
     SampleDbRepository repository;
 
     @Test
-    void should_create_empty_save_and_reload() {
+    void should_fail_to_save_an_empty_entity() {
         // Given
         SampleEntity e = SampleEntity.create();
 
-        // When
-        SampleId id = repository.save(e).getId();
-        SampleEntity reloadedEntity = repository.load(id);
+        // When/Then
+        assertThatThrownBy(() -> repository.save(e))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("no state")
+                .hasMessageContaining("Can not save");
+    }
 
-        // Then
-        assertThat(reloadedEntity.getSampleValue()).isNull();
-        assertThat(reloadedEntity.getId()).isEqualTo(id);
-        assertThat(reloadedEntity.getEvents())
-                .usingRecursiveFieldByFieldElementComparator()
-                .isEqualTo(emptyList());
+    @Test
+    void should_fail_to_load_inexisting_entity() {
+        assertThatThrownBy(() -> repository.load(SampleId.from("inexisting id")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not found");
     }
 
     @Test
@@ -82,7 +84,6 @@ class AbstractDbRepositoryIT {
         assertThat(e.getSampleValue()).isEqualTo("another sample value");
     }
 
-    @Rollback(false)
     @Test
     void should_fail_concurrent_update() {
         // Given
@@ -102,4 +103,5 @@ class AbstractDbRepositoryIT {
                 .isInstanceOf(EventConcurrentUpdateException.class)
                 .hasMessageContaining("Can not save this concurrent version. Refresh before update and try again.");
     }
+
 }

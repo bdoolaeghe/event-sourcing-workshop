@@ -75,7 +75,7 @@ class FestivalCommandHandlerIT {
     void should_book_a_place_when_concert_is_not_full() {
         // Given
         Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
-        Spectator spectator = spectatorRepository.save(Spectator.create());
+        Spectator spectator = Spectator.create();
 
         // When
         Place bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
@@ -162,6 +162,23 @@ class FestivalCommandHandlerIT {
 
     @Test
     void should_cancel_a_booking() {
+        // Given
+        Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
+        Spectator spectator = spectatorRepository.save(Spectator.create());
+        Place bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
 
+        // When
+        festivalCommandHandler.cancelBooking(bookedPlace.getId());
+
+        // Then
+        concert = concertRepository.load(marcelEtOrchestra);
+        assertThat(concert.getAvailablePlaces()).hasSize(10);
+
+        bookedPlace = placeRepository.load(bookedPlace.getId());
+        assertThat(bookedPlace.getStatus()).isEqualTo(Place.Status.AVAILABLE);
+        assertThat(bookedPlace.getAssignee()).isNull();
+
+        Spectator reloadedSpectator = spectatorRepository.load(spectator.getId());
+        assertThat(reloadedSpectator.getBookings()).isEmpty();
     }
 }

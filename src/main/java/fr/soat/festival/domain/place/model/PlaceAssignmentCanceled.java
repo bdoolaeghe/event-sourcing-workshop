@@ -1,24 +1,23 @@
 package fr.soat.festival.domain.place.model;
 
-import fr.soat.festival.domain.spectator.model.SpectatorId;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import static fr.soat.eventsourcing.api.Event.append;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class PlaceAssigned implements PlaceEvent {
-
-    private SpectatorId assignee;
+public class PlaceAssignmentCanceled implements PlaceEvent {
 
     @Override
     public Place applyOn(Place place) {
         return place.toBuilder()
-                .assignee(assignee)
-                .status(Place.Status.ASSIGNED)
+                .assignee(null)
+                .status(Place.Status.AVAILABLE)
                 .events(append(place.getEvents(), this))
                 .build();
     }

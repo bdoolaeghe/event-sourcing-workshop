@@ -65,11 +65,22 @@ public class FestivalCommandHandler {
 
     @Transactional
     public void cancelBooking(PlaceId placeId) {
-        // 1. load the places (IllegalArgumentException if not found)
+        // 1. reload the place (IllegalArgumentException if not found)
+        Place place = placeRepository.load(placeId);
+        Spectator spectator = spectatorRepository.load(place.getAssignee());
+        Concert concert = concertRepository.load(place.getArtist());
+
         // 2. update the place status (AVAILABLE), assigne
+        place = place.cancelAssignment();
+        placeRepository.save(place);
+
         // 3. update the spectator bookings
+        spectator = spectator.cancelBooking(placeId);
+        spectatorRepository.save(spectator);
+
         // 4. update the concert (make the place available back) + update status
-        throw new RuntimeException("implement me !");
+        concert = concert.cancelBooking(placeId);
+        concertRepository.save(concert);
     }
 
 }

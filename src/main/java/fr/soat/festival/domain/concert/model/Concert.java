@@ -61,6 +61,15 @@ public class Concert implements Entity<Artist, ConcertEvent> {
         }
     }
 
+    public Concert cancelBooking(PlaceId placeId) {
+        if (availablePlaces.contains(placeId)) {
+            throw new IllegalArgumentException("Can not cancel booking of place " + placeId +". Place already available for concert " + artist);
+        } else {
+            return new ConcertPlaceBookingCanceled(placeId)
+                    .applyOn(this);
+        }
+    }
+
 
 //    @DecisionFunction
 //    public Optional<Place> bookSeat(OrderId orderId) {

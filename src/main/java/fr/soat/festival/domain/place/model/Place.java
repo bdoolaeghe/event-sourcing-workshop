@@ -1,9 +1,8 @@
 package fr.soat.festival.domain.place.model;
 
 import fr.soat.eventsourcing.api.DecisionFunction;
-import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.eventsourcing.api.Entity;
-import fr.soat.festival.domain.spectator.model.Spectator;
+import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +56,11 @@ public class Place implements Entity<PlaceId, PlaceEvent> {
     @DecisionFunction
     public Place assignTo(SpectatorId spectatorId) {
         return new PlaceAssigned(spectatorId).applyOn(this);
+    }
+
+    @DecisionFunction
+    public Place cancelAssignment() {
+        return new PlaceAssignmentCanceled().applyOn(this);
     }
 
 }

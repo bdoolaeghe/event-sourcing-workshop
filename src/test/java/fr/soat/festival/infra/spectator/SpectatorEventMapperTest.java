@@ -3,6 +3,7 @@ package fr.soat.festival.infra.spectator;
 import fr.soat.eventsourcing.impl.db.EventMapper;
 import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.place.model.PlaceId;
+import fr.soat.festival.domain.spectator.model.SpectatorBookingCanceled;
 import fr.soat.festival.domain.spectator.model.SpectatorBookingRegistered;
 import fr.soat.festival.domain.spectator.model.SpectatorBookingRejected;
 import fr.soat.festival.domain.spectator.model.SpectatorEvent;
@@ -29,7 +30,8 @@ class SpectatorEventMapperTest {
     private static Stream<SpectatorEvent> someSpectatorEvents() {
         return Stream.of(
                 new SpectatorBookingRejected(Artist.named("Marcel & son orchestre")),
-                new SpectatorBookingRegistered(PlaceId.from("1"))
+                new SpectatorBookingRegistered(PlaceId.from("1")),
+                new SpectatorBookingCanceled(PlaceId.from("1"))
         );
     }
 }

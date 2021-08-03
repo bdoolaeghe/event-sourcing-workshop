@@ -3,7 +3,7 @@ package fr.soat.festival.infra.concert;
 import fr.soat.eventsourcing.impl.db.EventMapper;
 import fr.soat.festival.domain.concert.model.ConcertEvent;
 import fr.soat.festival.domain.concert.model.ConcertPlaceBooked;
-import fr.soat.festival.domain.concert.model.ConcertPlaceBookingCancelled;
+import fr.soat.festival.domain.concert.model.ConcertPlaceBookingCanceled;
 import fr.soat.festival.domain.concert.model.ConcertRoomAssigned;
 import fr.soat.festival.domain.place.model.PlaceId;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,7 +33,7 @@ class ConcertEventMapperTest {
                         PlaceId.from("1"),
                         PlaceId.from("2"))),
                 new ConcertPlaceBooked(PlaceId.from("1")),
-                new ConcertPlaceBookingCancelled(PlaceId.from("1"))
+                new ConcertPlaceBookingCanceled(PlaceId.from("1"))
         );
     }
 }

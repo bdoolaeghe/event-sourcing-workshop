@@ -49,4 +49,9 @@ public class Spectator implements Entity<SpectatorId, SpectatorEvent> {
     public Spectator registerBooking(PlaceId placeId) {
         return new SpectatorBookingRegistered(placeId).applyOn(this);
     }
+
+    public Spectator cancelBooking(PlaceId placeId) {
+        return new SpectatorBookingCanceled(placeId).applyOn(this);
+    }
+
 }

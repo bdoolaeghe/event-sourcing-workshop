@@ -5,14 +5,12 @@ import fr.soat.eventsourcing.configuration.DbEventStoreConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -27,15 +25,17 @@ class AbstractDbRepositoryIT {
     SampleDbRepository repository;
 
     @Test
-    void should_fail_to_save_an_empty_entity() {
+    void should_save_and_reload_an_empty_entity() {
         // Given
         SampleEntity e = SampleEntity.create();
 
-        // When/Then
-        assertThatThrownBy(() -> repository.save(e))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("no state")
-                .hasMessageContaining("Can not save");
+        // When
+        SampleEntity savedEntity = repository.save(e);
+        SampleEntity reloadedEntity = repository.load(savedEntity.getId());
+
+        assertThat(reloadedEntity).isEqualToIgnoringGivenFields(e, "id");
+        assertThat(reloadedEntity.getId()).isNotNull();
+        assertThat(reloadedEntity.getEvents()).isEmpty();
     }
 
     @Test

@@ -11,30 +11,39 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
 @Repository
 public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> implements EventStore<ENTITY_ID, EVENT_TYPE> {
 
     private final JdbcTemplate jdbcTemplate;
 
     private static final String SELECT =
-            " SELECT event_id, "
-            + "entity_id,"
-            + "event_sequence_id,"
-            + "event_type,"
-            + "timestamp,"
-            + "content" +
-            " FROM event " +
-            " WHERE entity_id = ? " +
-            " ORDER BY event_sequence_id";
+            " SELECT ety.entity_id, "
+            + "evt.event_id,"
+            + "evt.event_sequence_id,"
+            + "evt.event_type,"
+            + "evt.timestamp,"
+            + "evt.content" +
+            " FROM entity ety LEFT OUTER JOIN event evt ON ety.entity_id = evt.entity_id " +
+            " WHERE ety.entity_id = ? " +
+            " ORDER BY evt.event_sequence_id";
 
-    private static final String INSERT =
+    private static final String INSERT_EVENT =
             "INSERT INTO event ("
             + "entity_id, "
             + "event_sequence_id, "
             + "event_type, "
             + "content) VALUES (?,?,?,?)";
 
-    private static final String TRUNCATE = "TRUNCATE event";
+    private static final String INSERT_ENTITY_IF_NOT_EXIST =
+            "INSERT INTO entity "
+            + " (entity_id) VALUES (?)"
+            + " ON CONFLICT DO NOTHING";
+
+    private static final String TRUNCATE_ENTITY = "TRUNCATE entity";
+    private static final String TRUNCATE_EVENT = "TRUNCATE event";
 
     public DBEventStore(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -42,16 +51,28 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
 
     @Override
     public List<EVENT_TYPE> loadEvents(ENTITY_ID entityId) {
-        return jdbcTemplate.query(
+        List<EVENT_TYPE> events = jdbcTemplate.query(
                 SELECT,
                 new Object[]{entityId.getIdValue()},
                 new EventMapper<EVENT_TYPE>());
+        if (events.isEmpty()) {
+            // entity not found
+            throw new IllegalArgumentException("entity (id='" + entityId + "') not found.");
+        } else if (events.equals(singletonList(null))) {
+            // entity exists, but with no event
+            return emptyList();
+        } else {
+            return events;
+        }
     }
 
     @Override
     public void store(ENTITY_ID entityId, List<EVENT_TYPE> events, int version) {
-        List<Object[]> batchArgs = createInsertBatchArgs(entityId, events, version);
-        jdbcTemplate.batchUpdate(INSERT, batchArgs);
+        jdbcTemplate.update(INSERT_ENTITY_IF_NOT_EXIST, entityId.getIdValue());
+        if (!events.isEmpty()) {
+            List<Object[]> batchArgs = createInsertBatchArgs(entityId, events, version);
+            jdbcTemplate.batchUpdate(INSERT_EVENT, batchArgs);
+        }
     }
 
     @Override
@@ -75,7 +96,8 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
 
     @VisibleForTesting
     public void clear() {
-        jdbcTemplate.execute(TRUNCATE);
+        jdbcTemplate.execute(TRUNCATE_ENTITY);
+        jdbcTemplate.execute(TRUNCATE_EVENT);
     }
 
 }

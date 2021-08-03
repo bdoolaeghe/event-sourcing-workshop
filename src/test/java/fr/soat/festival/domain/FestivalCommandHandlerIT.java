@@ -75,7 +75,7 @@ class FestivalCommandHandlerIT {
     void should_book_a_place_when_concert_is_not_full() {
         // Given
         Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
-        Spectator spectator = Spectator.create();
+        Spectator spectator = spectatorRepository.save(Spectator.create());
 
         // When
         Place bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();

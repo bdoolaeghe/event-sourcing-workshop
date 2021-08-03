@@ -1,10 +1,9 @@
 package fr.soat.festival.domain.spectator.model;
 
-import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.*;
 
-import static fr.soat.eventsourcing.api.Event.append;
+import static fr.soat.util.Util.append;
 
 @Getter
 @NoArgsConstructor

@@ -2,7 +2,7 @@ package fr.soat.eventsourcing.impl.db;
 
 import lombok.*;
 
-import static fr.soat.eventsourcing.api.Event.append;
+import static fr.soat.util.Util.append;
 
 @Getter
 @NoArgsConstructor

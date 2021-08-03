@@ -16,9 +16,6 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
     }
 
     public ENTITY save(ENTITY entity) {
-        if (entity.getEvents().isEmpty()) {
-            throw new IllegalArgumentException("entity " + entity + " has no state (empty event list). Can not save.");
-        }
         ENTITY_ID entityId = entity.getId();
         if (entityId == null) {
             entityId = newEntityId();
@@ -27,9 +24,7 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
         List<EVENT_TYPE> transientEvents = entity.getEvents().subList(version, entity.getEvents().size());
 
         try {
-            if (transientEvents.size() > 0) {
-                eventStore.store(entityId, transientEvents, version);
-            }
+            eventStore.store(entityId, transientEvents, version);
             return hydrate(entityId, entity.getEvents());
         } catch (DuplicateKeyException e) {
             // a concurrent update occurred
@@ -45,9 +40,6 @@ public abstract class AbstractDbRepository<ENTITY_ID extends EntityId,
 
     public ENTITY load(ENTITY_ID entityId) {
         List<EVENT_TYPE> events = eventStore.loadEvents(entityId);
-        if (events.isEmpty()) {
-            throw new IllegalArgumentException("entity (id='" + entityId + "') not found.");
-        }
         return hydrate(entityId, events);
     }
 

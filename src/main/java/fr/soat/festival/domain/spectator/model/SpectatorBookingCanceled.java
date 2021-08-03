@@ -4,9 +4,8 @@ import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
-import static fr.soat.eventsourcing.api.Event.append;
+import static fr.soat.util.Util.append;
 import static java.util.Collections.unmodifiableList;
 
 @Getter

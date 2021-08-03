@@ -29,10 +29,15 @@ public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TY
 
     @Override
     public EVENT_TYPE mapRow(ResultSet rs, int i) throws SQLException {
-        String eventType = rs.getString("event_type");
         String jsonContent = rs.getString("content");
-        Class<? extends EVENT_TYPE> eventTypeClass = getEventTypeClass(eventType);
-        return fromJson(jsonContent, eventTypeClass);
+        if (jsonContent == null) {
+            //TODO better implem than null content when no events
+            return null;
+        } else {
+            String eventType = rs.getString("event_type");
+            Class<? extends EVENT_TYPE> eventTypeClass = getEventTypeClass(eventType);
+            return fromJson(jsonContent, eventTypeClass);
+        }
     }
 
     public static <EVENT_TYPE extends Event> String toJson(EVENT_TYPE event) {

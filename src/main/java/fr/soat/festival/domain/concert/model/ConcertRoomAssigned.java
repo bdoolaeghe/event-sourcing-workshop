@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.List;
 
-import static fr.soat.eventsourcing.api.Event.append;
+import static fr.soat.util.Util.append;
 import static java.util.Collections.unmodifiableList;
 
 @NoArgsConstructor

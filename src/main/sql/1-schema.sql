@@ -9,4 +9,10 @@ CREATE TABLE event
     CONSTRAINT entity_id_unique UNIQUE (entity_id, event_sequence_id)
 );
 
+CREATE TABLE entity
+(
+    entity_id      TEXT  PRIMARY KEY,
+    timestamp         TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE SEQUENCE entity_id_seq;

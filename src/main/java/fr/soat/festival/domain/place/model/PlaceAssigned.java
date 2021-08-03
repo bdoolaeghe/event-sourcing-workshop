@@ -3,7 +3,7 @@ package fr.soat.festival.domain.place.model;
 import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.*;
 
-import static fr.soat.eventsourcing.api.Event.append;
+import static fr.soat.util.Util.append;
 
 @Getter
 @NoArgsConstructor

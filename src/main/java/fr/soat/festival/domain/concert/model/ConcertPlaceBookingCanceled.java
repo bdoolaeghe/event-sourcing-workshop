@@ -4,11 +4,7 @@ package fr.soat.festival.domain.concert.model;
 import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static fr.soat.eventsourcing.api.Event.append;
-import static java.util.Collections.unmodifiableList;
+import static fr.soat.util.Util.append;
 
 @NoArgsConstructor
 @AllArgsConstructor

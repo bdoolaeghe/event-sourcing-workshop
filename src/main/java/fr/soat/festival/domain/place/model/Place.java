@@ -59,8 +59,8 @@ public class Place implements Entity<PlaceId, PlaceEvent> {
     }
 
     @DecisionFunction
-    public Place cancelAssignment() {
-        return new PlaceAssignmentCanceled().applyOn(this);
+    public Place cancelBooking() {
+        return new PlaceAssignmentCanceled(artist, assignee, id).applyOn(this);
     }
 
 }

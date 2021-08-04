@@ -8,7 +8,6 @@ import fr.soat.festival.domain.place.model.Place;
 import fr.soat.festival.domain.place.model.PlaceId;
 import fr.soat.festival.domain.spectator.SpectatorRepository;
 import fr.soat.festival.domain.spectator.model.Booking;
-import fr.soat.festival.domain.spectator.model.Spectator;
 import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,22 +40,9 @@ public class FestivalCommandHandler {
 
     @Transactional
     public void cancelBooking(PlaceId placeId) {
-        // 1. reload the place (IllegalArgumentException if not found)
         Place place = placeRepository.load(placeId);
-        Spectator spectator = spectatorRepository.load(place.getAssignee());
-        Concert concert = concertRepository.load(place.getArtist());
-
-        // 2. update the place status (AVAILABLE), assigne
-        place = place.cancelAssignment();
+        place = place.cancelBooking();
         placeRepository.save(place);
-
-        // 3. update the spectator bookings
-        spectator = spectator.cancelBooking(place.getArtist());
-        spectatorRepository.save(spectator);
-
-        // 4. update the concert (make the place available back) + update status
-        concert = concert.cancelBooking(placeId);
-        concertRepository.save(concert);
     }
 
 }

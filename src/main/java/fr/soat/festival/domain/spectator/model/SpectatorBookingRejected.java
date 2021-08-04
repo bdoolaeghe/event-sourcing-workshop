@@ -3,7 +3,11 @@ package fr.soat.festival.domain.spectator.model;
 import fr.soat.festival.domain.concert.model.Artist;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static fr.soat.util.Util.append;
+import static java.util.Collections.unmodifiableMap;
 
 @Getter
 @NoArgsConstructor
@@ -16,8 +20,10 @@ public class SpectatorBookingRejected implements SpectatorEvent {
 
     @Override
     public Spectator applyOn(Spectator spectator) {
+        Map<Artist, Booking> bookings = new HashMap<>(spectator.getBookings());
+        bookings.put(artist, new Booking.RejectedBooking(artist));
         return spectator.toBuilder()
-                .rejectedBookings(append(spectator.getRejectedBookings(), artist))
+                .bookings(unmodifiableMap(bookings))
                 .events(append(spectator.getEvents(), this))
                 .build();
     }

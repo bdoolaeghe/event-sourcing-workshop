@@ -1,12 +1,13 @@
 package fr.soat.festival.domain.spectator.model;
 
-import fr.soat.festival.domain.place.model.PlaceId;
+import fr.soat.festival.domain.concert.model.Artist;
 import lombok.*;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static fr.soat.util.Util.append;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 
 @Getter
 @NoArgsConstructor
@@ -15,14 +16,14 @@ import static java.util.Collections.unmodifiableList;
 @EqualsAndHashCode
 public class SpectatorBookingCanceled implements SpectatorEvent {
 
-    private PlaceId placeId;
+    private Artist artist;
 
     @Override
     public Spectator applyOn(Spectator spectator) {
-        ArrayList<PlaceId> newBookings = new ArrayList<>(spectator.getBookings());
-         newBookings.remove(placeId);
+        Map<Artist, Booking> bookings = new HashMap<>(spectator.getBookings());
+        bookings.remove(artist);
         return spectator.toBuilder()
-                .bookings(unmodifiableList(newBookings))
+                .bookings(unmodifiableMap(bookings))
                 .events(append(spectator.getEvents(), this))
                 .build();
     }

@@ -13,7 +13,7 @@ import static java.util.Collections.unmodifiableList;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class ConcertRoomAssigned implements ConcertEvent {
+public class ConcertOpened implements ConcertEvent {
 
     private List<PlaceId> availablePlaces;
 

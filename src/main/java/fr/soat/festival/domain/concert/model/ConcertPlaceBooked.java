@@ -2,6 +2,7 @@ package fr.soat.festival.domain.concert.model;
 
 
 import fr.soat.festival.domain.place.model.PlaceId;
+import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import static java.util.Collections.unmodifiableList;
 @ToString
 public class ConcertPlaceBooked implements ConcertEvent {
 
+    private Artist artist;
+    private SpectatorId spectatorId;
     private PlaceId bookedPlaceId;
 
     @Override

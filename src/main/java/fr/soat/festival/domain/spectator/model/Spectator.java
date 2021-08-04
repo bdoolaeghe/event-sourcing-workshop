@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 @Value
 @RequiredArgsConstructor
@@ -18,8 +20,7 @@ import static java.util.Collections.emptyList;
 public class Spectator implements Entity<SpectatorId, SpectatorEvent> {
 
     SpectatorId id;
-    List<PlaceId> bookings;
-    List<Artist> rejectedBookings;
+    Map<Artist, Booking> bookings;
 
     List<SpectatorEvent> events;
     int version;
@@ -31,8 +32,7 @@ public class Spectator implements Entity<SpectatorId, SpectatorEvent> {
     public static Spectator create(SpectatorId id, int version) {
         return new Spectator(
                 id,
-                emptyList(),
-                emptyList(),
+                emptyMap(),
                 emptyList(),
                 version
         );
@@ -44,13 +44,17 @@ public class Spectator implements Entity<SpectatorId, SpectatorEvent> {
     }
 
     @DecisionFunction
-    public Spectator registerBooking(PlaceId placeId) {
-        return new SpectatorBookingRegistered(placeId).applyOn(this);
+    public Spectator registerBooking(PlaceId placeId, Artist artist) {
+        return new SpectatorBookingRegistered(artist, placeId).applyOn(this);
     }
 
     @DecisionFunction
-    public Spectator cancelBooking(PlaceId placeId) {
-        return new SpectatorBookingCanceled(placeId).applyOn(this);
+    public Spectator cancelBooking(Artist artist) {
+        return new SpectatorBookingCanceled(artist).applyOn(this);
+    }
+
+    public Booking getBooking(Artist artist) {
+        return bookings.get(artist);
     }
 
 }

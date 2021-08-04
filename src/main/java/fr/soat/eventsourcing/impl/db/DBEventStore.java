@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import fr.soat.eventsourcing.api.EntityId;
 import fr.soat.eventsourcing.api.Event;
 import fr.soat.eventsourcing.api.EventStore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +17,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 @Repository
-public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> implements EventStore<ENTITY_ID, EVENT_TYPE> {
+public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event<?>> implements EventStore<ENTITY_ID, EVENT_TYPE> {
 
     private final JdbcTemplate jdbcTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String SELECT =
             " SELECT ety.entity_id, "
@@ -45,8 +48,10 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
     private static final String TRUNCATE_ENTITY = "TRUNCATE entity";
     private static final String TRUNCATE_EVENT = "TRUNCATE event";
 
-    public DBEventStore(DataSource dataSource) {
+    @Autowired
+    public DBEventStore(DataSource dataSource, ApplicationEventPublisher eventPublisher) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
         List<EVENT_TYPE> events = jdbcTemplate.query(
                 SELECT,
                 new Object[]{entityId.getIdValue()},
-                new EventMapper<EVENT_TYPE>());
+                new EventMapper<>());
         if (events.isEmpty()) {
             // entity not found
             throw new IllegalArgumentException("entity (id='" + entityId + "') not found.");
@@ -72,6 +77,7 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
         if (!events.isEmpty()) {
             List<Object[]> batchArgs = createInsertBatchArgs(entityId, events, version);
             jdbcTemplate.batchUpdate(INSERT_EVENT, batchArgs);
+            events.forEach(eventPublisher::publishEvent);
         }
     }
 

@@ -3,6 +3,7 @@ package fr.soat.festival.domain.concert.model;
 import fr.soat.eventsourcing.api.DecisionFunction;
 import fr.soat.eventsourcing.api.Entity;
 import fr.soat.festival.domain.place.model.PlaceId;
+import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -44,18 +45,23 @@ public class Concert implements Entity<Artist, ConcertEvent> {
     }
 
     @DecisionFunction
+    public Concert open(int places, int price) {
+        return new ConcertOpeningRequested(artist, places, price).applyOn(this);
+    }
+
+    @DecisionFunction
     public Concert assignRoom(List<PlaceId> availablePlaces) {
-        return new ConcertRoomAssigned(availablePlaces)
+        return new ConcertOpened(availablePlaces)
                 .applyOn(this);
     }
 
-    public Concert book(PlaceId placeId) {
-        if (availablePlaces.contains(placeId)) {
-            return new ConcertPlaceBooked(placeId)
-                    .applyOn(this);
+    @DecisionFunction
+    public Concert requestBooking(Artist artist, SpectatorId spectatorId) {
+        if (this.isFull()) {
+            return new ConcertPlaceBookingRequestRejected(artist, spectatorId).applyOn(this);
         } else {
-            throw new IllegalArgumentException("Can not book place " + placeId +
-                                               " because this place is not available");
+            PlaceId placeId = getAnAvailablePlaceId();
+            return new ConcertPlaceBooked(artist, spectatorId, placeId).applyOn(this);
         }
     }
 

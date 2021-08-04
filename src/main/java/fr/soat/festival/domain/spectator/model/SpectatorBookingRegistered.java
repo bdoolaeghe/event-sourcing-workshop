@@ -1,9 +1,14 @@
 package fr.soat.festival.domain.spectator.model;
 
+import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.place.model.PlaceId;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static fr.soat.util.Util.append;
+import static java.util.Collections.unmodifiableMap;
 
 @Getter
 @NoArgsConstructor
@@ -12,12 +17,15 @@ import static fr.soat.util.Util.append;
 @EqualsAndHashCode
 public class SpectatorBookingRegistered implements SpectatorEvent {
 
+    private Artist artist;
     private PlaceId placeId;
 
     @Override
     public Spectator applyOn(Spectator spectator) {
+        Map<Artist, Booking> bookings = new HashMap<>(spectator.getBookings());
+        bookings.put(artist, new Booking.RegisteredBooking(artist, placeId));
         return spectator.toBuilder()
-                .bookings(append(spectator.getBookings(), placeId))
+                .bookings(unmodifiableMap(bookings))
                 .events(append(spectator.getEvents(), this))
                 .build();
     }

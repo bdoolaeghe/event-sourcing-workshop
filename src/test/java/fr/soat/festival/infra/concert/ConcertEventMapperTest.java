@@ -1,11 +1,9 @@
 package fr.soat.festival.infra.concert;
 
 import fr.soat.eventsourcing.impl.db.EventMapper;
-import fr.soat.festival.domain.concert.model.ConcertEvent;
-import fr.soat.festival.domain.concert.model.ConcertPlaceBooked;
-import fr.soat.festival.domain.concert.model.ConcertPlaceBookingCanceled;
-import fr.soat.festival.domain.concert.model.ConcertRoomAssigned;
+import fr.soat.festival.domain.concert.model.*;
 import fr.soat.festival.domain.place.model.PlaceId;
+import fr.soat.festival.domain.spectator.model.SpectatorId;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -29,10 +27,13 @@ class ConcertEventMapperTest {
 
     private static Stream<ConcertEvent> someConcertEvents() {
         return Stream.of(
-                new ConcertRoomAssigned(asList(
+                new ConcertOpened(asList(
                         PlaceId.from("1"),
                         PlaceId.from("2"))),
-                new ConcertPlaceBooked(PlaceId.from("1")),
+                new ConcertOpeningRequested(Artist.named("Toto"), 3, 4),
+                new ConcertOpened(asList(PlaceId.from("1"), PlaceId.from("2"))),
+                new ConcertPlaceBookingRequestRejected(Artist.named("Toto"), SpectatorId.from("1")),
+                new ConcertPlaceBooked(Artist.named("Toto"), SpectatorId.from("4"), PlaceId.from("1")),
                 new ConcertPlaceBookingCanceled(PlaceId.from("1"))
         );
     }

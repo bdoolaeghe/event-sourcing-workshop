@@ -15,8 +15,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 @Repository
-public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> implements EventStore<ENTITY_ID, EVENT_TYPE> {
-
+public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event<?>> implements EventStore<ENTITY_ID, EVENT_TYPE> {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String SELECT =
@@ -54,7 +53,7 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event> 
         List<EVENT_TYPE> events = jdbcTemplate.query(
                 SELECT,
                 new Object[]{entityId.getIdValue()},
-                new EventMapper<EVENT_TYPE>());
+                new EventMapper<>());
         if (events.isEmpty()) {
             // entity not found
             throw new IllegalArgumentException("entity (id='" + entityId + "') not found.");

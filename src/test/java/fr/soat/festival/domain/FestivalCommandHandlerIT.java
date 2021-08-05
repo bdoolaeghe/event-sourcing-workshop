@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FestivalCommandHandlerIT {
 
     @Autowired
-    DBEventStore dbEventStore;
+    DBEventStore<?,?> dbEventStore;
 
     @Autowired
     FestivalCommandHandler festivalCommandHandler;
@@ -163,7 +163,7 @@ class FestivalCommandHandlerIT {
     @Test
     void should_cancel_a_booking() {
         // Given
-        Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
+        festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
         Spectator spectator = spectatorRepository.save(Spectator.create());
         Place bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
 
@@ -171,7 +171,7 @@ class FestivalCommandHandlerIT {
         festivalCommandHandler.cancelBooking(bookedPlace.getId());
 
         // Then
-        concert = concertRepository.load(marcelEtOrchestra);
+        Concert concert = concertRepository.load(marcelEtOrchestra);
         assertThat(concert.getAvailablePlaces()).hasSize(10);
 
         bookedPlace = placeRepository.load(bookedPlace.getId());

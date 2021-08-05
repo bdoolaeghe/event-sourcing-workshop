@@ -6,7 +6,9 @@ import fr.soat.festival.domain.concert.model.Concert;
 import fr.soat.festival.domain.place.PlaceRepository;
 import fr.soat.festival.domain.place.model.Place;
 import fr.soat.festival.domain.place.model.PlaceId;
+import fr.soat.festival.domain.spectator.AccountRepository;
 import fr.soat.festival.domain.spectator.SpectatorRepository;
+import fr.soat.festival.domain.spectator.model.Account;
 import fr.soat.festival.domain.spectator.model.Booking;
 import fr.soat.festival.domain.spectator.model.Spectator;
 import fr.soat.festival.domain.spectator.model.SpectatorId;
@@ -21,6 +23,7 @@ public class BookingService {
     private final ConcertRepository concertRepository;
     private final PlaceRepository placeRepository;
     private final SpectatorRepository spectatorRepository;
+    private final AccountRepository accountRepository;
 
     @Transactional
     public Booking book(Artist artist, SpectatorId spectatorId) {
@@ -41,6 +44,9 @@ public class BookingService {
 
             spectator = spectator.registerBooking(place.getId(), place.getArtist());
             spectatorRepository.save(spectator);
+            Account account = accountRepository.getOne(spectatorId);
+            account.setBalance(account.getBalance() - place.getPrice());
+            accountRepository.update(account);
         }
         return spectator.getBooking(artist);
     }
@@ -57,6 +63,11 @@ public class BookingService {
         Spectator spectator = spectatorRepository.load(assignee);
         spectator = spectator.cancelBooking(place.getArtist());
         spectatorRepository.save(spectator);
+
+        // update the spectator account
+        Account account = accountRepository.getOne(spectator.getId());
+        account.setBalance(account.getBalance() + place.getPrice());
+        accountRepository.update(account);
 
         // 3. update the concert (make the place available back) + update status
         Concert concert = concertRepository.load(place.getArtist());

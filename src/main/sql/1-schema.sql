@@ -18,3 +18,9 @@ CREATE TABLE entity
 );
 
 CREATE SEQUENCE entity_id_seq;
+
+CREATE TABLE account
+(
+    spectator_id TEXT PRIMARY KEY,
+    balance      INT NOT NULL
+);

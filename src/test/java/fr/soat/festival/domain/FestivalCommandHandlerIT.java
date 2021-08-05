@@ -8,7 +8,9 @@ import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.concert.model.Concert;
 import fr.soat.festival.domain.place.PlaceRepository;
 import fr.soat.festival.domain.place.model.Place;
+import fr.soat.festival.domain.place.model.PlaceId;
 import fr.soat.festival.domain.spectator.SpectatorRepository;
+import fr.soat.festival.domain.spectator.model.Booking;
 import fr.soat.festival.domain.spectator.model.Spectator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +58,7 @@ class FestivalCommandHandlerIT {
     @Test
     public void should_create_and_open_a_new_concert() {
         // When
-        Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
+        festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
 
         // Then
         Concert savedConcert = concertRepository.load(marcelEtOrchestra);
@@ -74,14 +75,17 @@ class FestivalCommandHandlerIT {
     @Test
     void should_book_a_place_when_concert_is_not_full() {
         // Given
-        Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
+        festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
         Spectator spectator = spectatorRepository.save(Spectator.create());
 
         // When
-        Place bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
+        Booking booking = festivalCommandHandler.book(marcelEtOrchestra, spectator.getId());
 
         // Then
-        assertThat(bookedPlace.getArtist()).isEqualTo(marcelEtOrchestra);
+        assertThat(booking).isInstanceOf(Booking.RegisteredBooking.class);
+        assertThat(booking.getArtist()).isEqualTo(marcelEtOrchestra);
+
+        Place bookedPlace = placeRepository.load(booking.getPlaceId());
         assertThat(bookedPlace.getPrice()).isEqualTo(3);
         assertThat(bookedPlace.getStatus()).isEqualTo(Place.Status.ASSIGNED);
         assertThat(bookedPlace.getAssignee()).isEqualTo(spectator.getId());
@@ -92,27 +96,34 @@ class FestivalCommandHandlerIT {
 
         Spectator reloadedSpectator = spectatorRepository.load(spectator.getId());
         assertThat(reloadedSpectator.getBookings()).hasSize(1);
-        Place spectatorPlace = placeRepository.load(reloadedSpectator.getBookings().get(0));
+        Place spectatorPlace = placeRepository.load(reloadedSpectator.getBooking(marcelEtOrchestra).getPlaceId());
         assertThat(spectatorPlace).isEqualToIgnoringGivenFields(bookedPlace, "version");
     }
 
     @Test
     void should_book_one_place_in_two_concert_not_full() {
         // Given
-        Concert concertMarcel = festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
-        Concert concertSkape = festivalCommandHandler.openConcert(skape, 5, 2);
+        festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
+        festivalCommandHandler.openConcert(skape, 5, 2);
         Spectator spectator = spectatorRepository.save(Spectator.create());
 
         // When
-        Place marcelBookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
+        Booking marcelBooking = festivalCommandHandler.book(marcelEtOrchestra, spectator.getId());
         spectator = spectatorRepository.load(spectator.getId());
-        Place skapeBookedPlace = festivalCommandHandler.book(skape, spectator).get();
+        Booking skapeBooking = festivalCommandHandler.book(skape, spectator.getId());
 
         // Then
+        assertThat(marcelBooking).isInstanceOf(Booking.RegisteredBooking.class);
+        assertThat(marcelBooking.getArtist()).isEqualTo(marcelEtOrchestra);
+        Place marcelBookedPlace = placeRepository.load(marcelBooking.getPlaceId());
         assertThat(marcelBookedPlace.getArtist()).isEqualTo(marcelEtOrchestra);
         assertThat(marcelBookedPlace.getPrice()).isEqualTo(3);
         assertThat(marcelBookedPlace.getStatus()).isEqualTo(Place.Status.ASSIGNED);
         assertThat(marcelBookedPlace.getAssignee()).isEqualTo(spectator.getId());
+
+        assertThat(skapeBooking).isInstanceOf(Booking.RegisteredBooking.class);
+        assertThat(skapeBooking.getArtist()).isEqualTo(skape);
+        Place skapeBookedPlace = placeRepository.load(skapeBooking.getPlaceId());
         assertThat(skapeBookedPlace.getArtist()).isEqualTo(skape);
         assertThat(skapeBookedPlace.getPrice()).isEqualTo(2);
         assertThat(skapeBookedPlace.getStatus()).isEqualTo(Place.Status.ASSIGNED);
@@ -127,26 +138,26 @@ class FestivalCommandHandlerIT {
 
         Spectator reloadedSpectator = spectatorRepository.load(spectator.getId());
         assertThat(reloadedSpectator.getBookings()).hasSize(2);
-        Place spectatorMarcelPlace = placeRepository.load(reloadedSpectator.getBookings().get(0));
+        Place spectatorMarcelPlace = placeRepository.load(reloadedSpectator.getBooking(marcelEtOrchestra).getPlaceId());
         assertThat(spectatorMarcelPlace).isEqualToIgnoringGivenFields(marcelBookedPlace, "version");
-        Place spectatorSkapePlace = placeRepository.load(reloadedSpectator.getBookings().get(1));
+        Place spectatorSkapePlace = placeRepository.load(reloadedSpectator.getBooking(skape).getPlaceId());
         assertThat(spectatorSkapePlace).isEqualToIgnoringGivenFields(skapeBookedPlace, "version");
     }
 
     @Test
     void should_refuse_booking_when_concert_is_full() {
         // Given
-        Concert concert = festivalCommandHandler.openConcert(marcelEtOrchestra, 1, 3);
+        festivalCommandHandler.openConcert(marcelEtOrchestra, 1, 3);
         Spectator earlySpectator = spectatorRepository.save(Spectator.create());
         Spectator lateSspectator = spectatorRepository.save(Spectator.create());
 
         // When
-        Optional<Place> bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, earlySpectator);
-        Optional<Place> notBookedPlace = festivalCommandHandler.book(marcelEtOrchestra, lateSspectator);
+        Booking registeredBooking = festivalCommandHandler.book(marcelEtOrchestra, earlySpectator.getId());
+        Booking rejectedBooking = festivalCommandHandler.book(marcelEtOrchestra, lateSspectator.getId());
 
         // Then
-        assertThat(bookedPlace).isNotEmpty();
-        assertThat(notBookedPlace).isEmpty();
+        assertThat(registeredBooking).isInstanceOf(Booking.RegisteredBooking.class);
+        assertThat(rejectedBooking).isInstanceOf(Booking.RejectedBooking.class);
 
         Concert reloadedConcert = concertRepository.load(marcelEtOrchestra);
         assertThat(reloadedConcert.getAvailablePlaces()).hasSize(0);
@@ -154,10 +165,10 @@ class FestivalCommandHandlerIT {
 
         Spectator reloadedEarlySpectator = spectatorRepository.load(earlySpectator.getId());
         assertThat(reloadedEarlySpectator.getBookings()).hasSize(1);
-        Place earlySpectatorPlace = placeRepository.load(reloadedEarlySpectator.getBookings().get(0));
-        assertThat(earlySpectatorPlace).isEqualToIgnoringGivenFields(bookedPlace.get(), "version");
+        Place earlySpectatorPlace = placeRepository.load(reloadedEarlySpectator.getBooking(marcelEtOrchestra).getPlaceId());
+        assertThat(earlySpectatorPlace.getId()).isEqualTo(registeredBooking.getPlaceId());
         Spectator reloadedLateSpectator = spectatorRepository.load(lateSspectator.getId());
-        assertThat(reloadedLateSpectator.getBookings()).isEmpty();
+        assertThat(reloadedLateSpectator.getBooking(marcelEtOrchestra)).isInstanceOf(Booking.RejectedBooking.class);
     }
 
     @Test
@@ -165,16 +176,16 @@ class FestivalCommandHandlerIT {
         // Given
         festivalCommandHandler.openConcert(marcelEtOrchestra, 10, 3);
         Spectator spectator = spectatorRepository.save(Spectator.create());
-        Place bookedPlace = festivalCommandHandler.book(marcelEtOrchestra, spectator).get();
+        PlaceId bookedPlaceId = festivalCommandHandler.book(marcelEtOrchestra, spectator.getId()).getPlaceId();
 
         // When
-        festivalCommandHandler.cancelBooking(bookedPlace.getId());
+        festivalCommandHandler.cancelBooking(bookedPlaceId);
 
         // Then
         Concert concert = concertRepository.load(marcelEtOrchestra);
         assertThat(concert.getAvailablePlaces()).hasSize(10);
 
-        bookedPlace = placeRepository.load(bookedPlace.getId());
+        Place bookedPlace = placeRepository.load(bookedPlaceId);
         assertThat(bookedPlace.getStatus()).isEqualTo(Place.Status.AVAILABLE);
         assertThat(bookedPlace.getAssignee()).isNull();
 

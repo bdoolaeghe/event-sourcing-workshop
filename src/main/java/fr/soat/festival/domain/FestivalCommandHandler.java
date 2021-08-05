@@ -7,13 +7,14 @@ import fr.soat.festival.domain.place.PlaceRepository;
 import fr.soat.festival.domain.place.model.Place;
 import fr.soat.festival.domain.place.model.PlaceId;
 import fr.soat.festival.domain.spectator.SpectatorRepository;
+import fr.soat.festival.domain.spectator.model.Booking;
 import fr.soat.festival.domain.spectator.model.Spectator;
+import fr.soat.festival.domain.spectator.model.SpectatorId;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
@@ -27,7 +28,7 @@ public class FestivalCommandHandler {
     private final SpectatorRepository spectatorRepository;
 
     @Transactional
-    public Concert openConcert(Artist artist, int places, int price) {
+    public void openConcert(Artist artist, int places, int price) {
         // create concert
         Concert concert = concertRepository.save(Concert.create(artist));
 
@@ -39,46 +40,47 @@ public class FestivalCommandHandler {
                 .collect(toList());
 
         // then attach to new created concert
-        return concertRepository.save(concert.assignRoom(room));
+        concertRepository.save(concert.assignRoom(room));
     }
 
     @Transactional
-    public Optional<Place> book(Artist artist, Spectator spectator) {
+    public Booking book(Artist artist, SpectatorId spectatorId) {
         // lookup an available place
         Concert concert = concertRepository.load(artist);
+        Spectator spectator = spectatorRepository.load(spectatorId);
         if (concert.isFull()) {
             spectator = spectator.rejectBooking(artist);
             spectatorRepository.save(spectator);
-            return Optional.empty();
         } else {
             PlaceId placeId = concert.getAnAvailablePlaceId();
             concert = concert.book(placeId);
             concertRepository.save(concert);
+
             Place place = placeRepository.load(placeId);
-            place = place.assignTo(spectator.getId());
+            place = place.assignTo(spectatorId);
             placeRepository.save(place);
-            spectator = spectator.registerBooking(place.getId());
+
+            spectator = spectator.registerBooking(place.getId(), place.getArtist());
             spectatorRepository.save(spectator);
-            return Optional.of(place);
         }
+        return spectator.getBooking(artist);
     }
 
     @Transactional
     public void cancelBooking(PlaceId placeId) {
-        // 1. reload the place (IllegalArgumentException if not found)
+        // 1. update the place status (make AVAILABLE), remove assigne
         Place place = placeRepository.load(placeId);
-        Spectator spectator = spectatorRepository.load(place.getAssignee());
-        Concert concert = concertRepository.load(place.getArtist());
-
-        // 2. update the place status (AVAILABLE), assigne
+        SpectatorId assignee = place.getAssignee();
         place = place.cancelAssignment();
         placeRepository.save(place);
 
-        // 3. update the spectator bookings
-        spectator = spectator.cancelBooking(placeId);
+        // 2. update the spectator bookings
+        Spectator spectator = spectatorRepository.load(assignee);
+        spectator = spectator.cancelBooking(place.getArtist());
         spectatorRepository.save(spectator);
 
-        // 4. update the concert (make the place available back) + update status
+        // 3. update the concert (make the place available back) + update status
+        Concert concert = concertRepository.load(place.getArtist());
         concert = concert.cancelBooking(placeId);
         concertRepository.save(concert);
     }

@@ -30,8 +30,8 @@ class SpectatorEventMapperTest {
     private static Stream<SpectatorEvent> someSpectatorEvents() {
         return Stream.of(
                 new SpectatorBookingRejected(Artist.named("Marcel & son orchestre")),
-                new SpectatorBookingRegistered(PlaceId.from("1")),
-                new SpectatorBookingCanceled(PlaceId.from("1"))
+                new SpectatorBookingRegistered(Artist.named("Marcel & son orchestre"), PlaceId.from("1")),
+                new SpectatorBookingCanceled(Artist.named("Marcel & son orchestre"))
         );
     }
 }

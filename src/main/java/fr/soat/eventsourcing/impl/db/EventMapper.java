@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TYPE> {
+public class EventMapper<EVENT_TYPE extends Event<?>> implements RowMapper<EVENT_TYPE> {
 
     private static final ObjectMapper objectMapper = configureObjectMapper();
 
@@ -23,7 +23,6 @@ public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TY
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         objectMapper.writerWithDefaultPrettyPrinter();
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        EventMixins.registerOn(objectMapper);
         return objectMapper;
     }
 
@@ -40,7 +39,7 @@ public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TY
         }
     }
 
-    public static <EVENT_TYPE extends Event> String toJson(EVENT_TYPE event) {
+    public static <EVENT_TYPE extends Event<?>> String toJson(EVENT_TYPE event) {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
@@ -48,7 +47,7 @@ public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TY
         }
     }
 
-    public static <EVENT_TYPE extends Event> EVENT_TYPE fromJson(String jsonContent, Class<? extends EVENT_TYPE> eventTypeClass) {
+    public static <EVENT_TYPE extends Event<?>> EVENT_TYPE fromJson(String jsonContent, Class<? extends EVENT_TYPE> eventTypeClass) {
         try {
             return objectMapper.readValue(jsonContent, eventTypeClass);
         } catch (IOException e) {

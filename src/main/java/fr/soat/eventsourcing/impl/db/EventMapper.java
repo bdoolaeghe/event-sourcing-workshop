@@ -11,8 +11,11 @@ import org.springframework.jdbc.core.RowMapper;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
-public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TYPE> {
+import static fr.soat.eventsourcing.impl.db.DBEventStore.EMPTY_CONTENT;
+
+public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<Optional<EVENT_TYPE>> {
 
     private static final ObjectMapper objectMapper = configureObjectMapper();
 
@@ -28,15 +31,14 @@ public class EventMapper<EVENT_TYPE extends Event> implements RowMapper<EVENT_TY
     }
 
     @Override
-    public EVENT_TYPE mapRow(ResultSet rs, int i) throws SQLException {
+    public Optional<EVENT_TYPE> mapRow(ResultSet rs, int i) throws SQLException {
         String jsonContent = rs.getString("content");
-        if (jsonContent == null) {
-            //TODO better implem than null content when no events
-            return null;
+        if (EMPTY_CONTENT.equals(jsonContent)) {
+            return Optional.empty();
         } else {
             String eventType = rs.getString("event_type");
             Class<? extends EVENT_TYPE> eventTypeClass = getEventTypeClass(eventType);
-            return fromJson(jsonContent, eventTypeClass);
+            return Optional.of(fromJson(jsonContent, eventTypeClass));
         }
     }
 

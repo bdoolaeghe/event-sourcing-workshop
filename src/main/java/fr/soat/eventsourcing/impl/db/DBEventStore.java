@@ -12,23 +12,27 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 @Repository
 public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event<?>> implements EventStore<ENTITY_ID, EVENT_TYPE> {
+
+    public static final String EMPTY_CONTENT = "empty-content";
 
     private final JdbcTemplate jdbcTemplate;
     private final ApplicationEventPublisher eventPublisher;
 
     private static final String SELECT =
             " SELECT ety.entity_id, "
-            + "evt.event_id,"
-            + "evt.event_sequence_id,"
-            + "evt.event_type,"
-            + "evt.timestamp,"
-            + "evt.content" +
+            + "evt.event_id, "
+            + "evt.event_sequence_id, "
+            + "evt.event_type, "
+            + "evt.timestamp, "
+            + "coalesce(evt.content, '" + EMPTY_CONTENT + "') as content" +
             " FROM entity ety LEFT OUTER JOIN event evt ON ety.entity_id = evt.entity_id " +
             " WHERE ety.entity_id = ? " +
             " ORDER BY evt.event_sequence_id";
@@ -56,18 +60,18 @@ public class DBEventStore<ENTITY_ID extends EntityId, EVENT_TYPE extends Event<?
 
     @Override
     public List<EVENT_TYPE> loadEvents(ENTITY_ID entityId) {
-        List<EVENT_TYPE> events = jdbcTemplate.query(
+        List<Optional<EVENT_TYPE>> events = jdbcTemplate.query(
                 SELECT,
                 new Object[]{entityId.getIdValue()},
                 new EventMapper<>());
         if (events.isEmpty()) {
             // entity not found
             throw new IllegalArgumentException("entity (id='" + entityId + "') not found.");
-        } else if (events.equals(singletonList(null))) {
+        } else if (events.equals(singletonList(Optional.empty()))) {
             // entity exists, but with no event
             return emptyList();
         } else {
-            return events;
+            return events.stream().map(Optional::get).collect(toList());
         }
     }
 

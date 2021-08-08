@@ -19,6 +19,7 @@ public class ConcertOpeningRequested implements ConcertEvent {
     public Concert applyOn(Concert concert) {
         return concert.toBuilder()
                 .status(Concert.Status.BOOKABLE)
+                .roomSize(places)
                 .events(append(concert.getEvents(), this))
                 .build();
     }

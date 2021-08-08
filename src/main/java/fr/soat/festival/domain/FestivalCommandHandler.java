@@ -1,5 +1,6 @@
 package fr.soat.festival.domain;
 
+import fr.soat.eventsourcing.api.Command;
 import fr.soat.festival.domain.concert.model.Artist;
 import fr.soat.festival.domain.place.model.PlaceId;
 import fr.soat.festival.domain.spectator.model.Booking;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@Command
 public class FestivalCommandHandler {
 
     private final FestivalOrganizationService festivalOrganizationService;

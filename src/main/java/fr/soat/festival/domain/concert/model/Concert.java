@@ -26,6 +26,7 @@ public class Concert implements Entity<Artist, ConcertEvent> {
     Artist artist;
     Status status;
     List<PlaceId> availablePlaces;
+    int roomSize;
 
     List<ConcertEvent> events;
     int version;

@@ -18,3 +18,11 @@ CREATE TABLE entity
 );
 
 CREATE SEQUENCE entity_id_seq;
+
+CREATE TABLE concert_dashboard
+(
+    artist TEXT PRIMARY KEY,
+    booking_ratio int default 0,
+    booking_incomes_total int default  0
+);
+
